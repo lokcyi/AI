@@ -1,0 +1,23 @@
+= Database Setup
+:toc:
+:source-highlighter: rouge
+:rouge-linenums-mode: table
+:rouge-style: github
+
+This document explains setting up a PostgreSQL database on a Linux system.
+
+* Install PostgreSQL and required libraries using the distribution's package manager.
+* Initialize database cluster using `initdb` command run as the `postgres` user. Connect to the database shell and create the database before proceeding further.
+**  Alternatively, if you prefer to use a per-project Postgres data directory, follow the instructions in https://jamey.thesharps.us/2019/05/29/per-project-postgres[this post].
+* Create database users by connecting to the database shell:
++
+[source, shell]
+--
+$ psql db_name
+--
++
+[source, sql]
+--
+db_name=# CREATE ROLE username WITH NOSUPERUSER CREATEDB LOGIN PASSWORD 'password';
+db_name=# \q
+--

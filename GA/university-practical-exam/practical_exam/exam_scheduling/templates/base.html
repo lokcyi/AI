@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'exam_scheduling/css/tailwind-generated.css' %}">
+</head>
+
+<body>
+  <header>
+    <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <div class="flex items-center text-xl font-extrabold text-gray-900">
+        {% block heading %}{% endblock %}
+      </div>
+
+      <div class="header-links">
+        {% comment %} <a href="/">Home</a> {% endcomment %}
+        <a href="{% url 'exam_scheduling:schedule' %}" class="ml-4 sm:ml-12">Schedule</a>
+        <a href="{% url 'exam_scheduling:display' %}" class="ml-4 sm:ml-12">View Timetable</a>
+        <a href="{% url 'admin:index' %}" class="ml-4 sm:ml-12">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <div>{% block content %}{% endblock %}</div>
+</body>
+
+</html>

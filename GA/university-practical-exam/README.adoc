@@ -1,0 +1,16 @@
+= University Practical Exam Scheduling System
+Sanchith Hegde; Prajith V Nair
+
+University practical examination scheduling system, as an academic project, implemented in Python.
+
+== To-Do
+
+* [ ] Update documentation.
+** [ ] Instructions for installing dependencies (both Python and JavaScript).
+** [ ] Instructions for setting up database.
+** [ ] Environment variables that are necessary to run the application.
+** [ ] Screenshots.
+
+== Licensing
+
+Dual licensed under Apache 2.0 or MIT at your option.

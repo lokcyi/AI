@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+{% load exam_scheduling_extras %}
+
+{% block title %}View Generated Timetable{% endblock %}
+
+{% block heading %}View Generated Timetable{% endblock %}
+
+{% block content %}
+<div class="mt-10 sm:mt-0 pt-4 sm:pt-2">
+  <div class="md:grid md:grid-cols-2 md:gap-6 mt-4">
+    {{ display_form.non_field_errors }}
+
+    <div class="mt-5 md:mt-0 md:col-span-2 mx-auto">
+      <form action="{% url 'exam_scheduling:display' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-4 gap-6">
+              <div class="col-span-4 sm:col-span-3">
+                {{ display_form.choice.errors }}
+                {{ display_form.choice.label_tag }}
+                {{ display_form.choice|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 mt-auto mx-auto">
+                <button type="submit" name="display_form">
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="hidden sm:block" aria-hidden="true">
+    <div class="py-5">
+      <div class="border-t border-gray-200"></div>
+    </div>
+  </div>
+
+  {% if college_dept_form %}
+  <div class="md:grid md:grid-cols-2 md:gap-6">
+    <div class="mt-5 md:mt-0 md:col-span-2 mx-auto">
+      <form action="{% url 'exam_scheduling:display' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-4 gap-6">
+              <div class="col-span-4 sm:col-span-3">
+                {{ college_dept_form.college_dept.errors }}
+                {{ college_dept_form.college_dept.label_tag }}
+                {{ college_dept_form.college_dept|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 mt-auto mx-auto">
+                <button type="submit" name="college_dept_form">
+                  Submit
+                </button>
+              </div>
+            </div>
+
+            {{ college_dept_form.non_field_errors }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if semester_form %}
+  <div class="md:grid md:grid-cols-2 md:gap-6">
+    <div class="mt-5 md:mt-0 md:col-span-2 mx-auto">
+      <form action="{% url 'exam_scheduling:display' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-5 gap-6">
+              <div class="col-span-4 sm:col-span-3">
+                {{ semester_form.college_dept.errors }}
+                {{ semester_form.college_dept.label_tag }}
+                {{ semester_form.college_dept|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 sm:col-span-1">
+                {{ semester_form.semester.errors }}
+                {{ semester_form.semester.label_tag }}
+                {{ semester_form.semester|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 mt-auto mx-auto">
+                <button type="submit" name="semester_form">
+                  Submit
+                </button>
+              </div>
+            </div>
+
+            {{ semester_form.non_field_errors }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if teacher_form %}
+  <div class="md:grid md:grid-cols-2 md:gap-6">
+    <div class="mt-5 md:mt-0 md:col-span-2 mx-auto">
+      <form action="{% url 'exam_scheduling:display' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-4 gap-6">
+              <div class="col-span-4 sm:col-span-3">
+                {{ teacher_form.teacher.errors }}
+                {{ teacher_form.teacher.label_tag }}
+                {{ teacher_form.teacher|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 mt-auto mx-auto">
+                <button type="submit" name="teacher_form">
+                  Submit
+                </button>
+              </div>
+            </div>
+
+            {{ teacher_form.non_field_errors }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if seating_form %}
+  <div class="md:grid md:grid-cols-2 md:gap-6">
+    <div class="mt-5 md:mt-0 md:col-span-2 mx-auto">
+      <form action="{% url 'exam_scheduling:display' %}" method="POST">
+        {% csrf_token %}
+
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-4 sm:col-span-3">
+                {{ seating_form.college_dept.errors }}
+                {{ seating_form.college_dept.label_tag }}
+                {{ seating_form.college_dept|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-2 sm:col-span-2">
+                {{ seating_form.date.errors }}
+                {{ seating_form.date.label_tag }}
+                {{ seating_form.date|attr:"type:date"|add_error_attr:"aria-invalid:true" }}
+              </div>
+
+              <div class="col-span-1 mt-auto mx-auto">
+                <button type="submit" name="seating_form">
+                  Submit
+                </button>
+              </div>
+            </div>
+
+            {{ seating_form.non_field_errors }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if college_dept_form or semester_form or teacher_form or seating_form %}
+  <div class="hidden sm:block" aria-hidden="true">
+    <div class="py-5">
+      <div class="border-t border-gray-200"></div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if courses %}
+  <div class="flex flex-col w-10/12 m-auto py-4">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="shadow overflow-hidden border-b border-gray-300 sm:rounded-lg bg-white">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"></th>
+
+                {% for time in times %}
+                <th scope="col">{{ time.start_time }} - {{ time.end_time }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for date, course_list in dates|zip:courses %}
+              <tr>
+                <th scope="row">{{ date }}</th>
+
+                {% for course in course_list %}
+                <td>{{ course }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if courses_colleges_labs %}
+  <div class="flex flex-col w-10/12 m-auto py-4">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="shadow overflow-hidden border-b border-gray-300 sm:rounded-lg bg-white">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Course</th>
+                <th scope="col">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for date, course_college_lab in dates|zip:courses_colleges_labs %}
+              <tr>
+                {% comment %} {% for course_college_lab, time in course_college_lab_list|zip:times %} {% endcomment %}
+                <td>{{ date }}</td>
+                <td>
+                  <div class="text-sm text-gray-700">
+                    {{ course_college_lab.course }}
+                  </div>
+                  {% if course_college_lab.course and course_college_lab.course.strip %}
+                  <div class="text-sm text-gray-500">
+                    {{ course_college_lab.college }} - {{ course_college_lab.lab }}
+                  </div>
+                  {% endif %}
+                </td>
+                <td>{{ course_college_lab.time.start_time }} - {{ course_college_lab.time.end_time }}</td>
+                {% comment %} {% endfor %} {% endcomment %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if courses_labs_usns %}
+  <div class="flex flex-col w-6/12 m-auto py-4">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="shadow overflow-hidden border-b border-gray-300 sm:rounded-lg bg-white">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Course</th>
+                <th scope="col">Lab</th>
+                <th scope="col">USN</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course_lab_usn in courses_labs_usns %}
+              <tr>
+                <th scope="row">{{ course_lab_usn.course }}</th>
+
+                <td>{{ course_lab_usn.lab }}</td>
+                <td>{{ course_lab_usn.start_usn }} - {{ course_lab_usn.end_usn }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock content %}

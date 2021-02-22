@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@tailwindcss/forms": "^0.2.1",
+    "autoprefixer": "^10.0.2",
+    "npm-watch": "^0.7.0",
+    "postcss": "^8.1.9",
+    "postcss-cli": "^8.3.0",
+    "postcss-import": "^13.0.0",
+    "tailwindcss": "^2.0.1"
+  },
+  "scripts": {
+    "build": "postcss css/tailwind.css -o ../practical_exam/exam_scheduling/static/exam_scheduling/css/tailwind-generated.css",
+    "watch": "npm-watch"
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src",
+        "css"
+      ],
+      "extensions": "css,html",
+      "quiet": false,
+      "delay": 1000
+    }
+  }
+}

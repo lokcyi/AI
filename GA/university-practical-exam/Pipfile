@@ -1,0 +1,25 @@
+[[source]]
+name       = "pypi"
+url        = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black              = "*"
+mypy               = "*"
+django-stubs       = "*"
+data-science-types = "*"
+
+[packages]
+django                   = "*"
+django-livereload-server = "*"
+django-pgtrigger         = "*"
+django-widget-tweaks     = "*"
+numpy                    = "*"
+psycopg2                 = "*"
+pygad                    = "*"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

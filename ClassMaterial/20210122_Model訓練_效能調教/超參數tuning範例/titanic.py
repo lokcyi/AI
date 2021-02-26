@@ -11,7 +11,7 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import datetime
 
-output_dir = 'logs/hparam_tuning/'
+output_dir = './logs/hparam_tuning/'
 def impute_age(cols):
     Age = cols[0]
     Pclass = cols[1]
@@ -54,8 +54,8 @@ def preprocessing(df):
 
     return dfresult
 
-df_train_raw = pd.read_csv('input/train.csv')
-df_test_raw = pd.read_csv('input/test.csv')
+df_train_raw = pd.read_csv('./ClassMaterial/20210122_Model訓練_效能調教/超參數tuning範例/input/train.csv')
+df_test_raw = pd.read_csv('./ClassMaterial/20210122_Model訓練_效能調教/超參數tuning範例/input/test.csv')
 
 x_train = preprocessing(df_train_raw)
 print(x_train)

@@ -1,4 +1,4 @@
-#回歸模型 
+#回歸模型  
 # 1.線性迴歸 LINEAR REGRESSION
 # 2.多項式線性迴歸 PLOYNOMIAL REGRESSION
 # 3.多變量迴歸 
@@ -8,7 +8,7 @@
 
 # 梯度下降法 一路找坡度最陡的地方 =>batch gradient descent
 
-#     當樣本集太大 ==> stochastic gradient descent (隨機，計算快)
+# 當樣本集太大 ==> stochastic gradient descent (隨機，計算快)
 
 # 低度擬合&過度擬合
 #     特徵數量不太少 或過多(ex特徵比樣本還要多) 可能找成過度擬合 

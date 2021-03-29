@@ -692,14 +692,14 @@ def drawModelResult(modelType,TOOLG_ID,x,y_actual,y_predict28 ,imagepath):
     plt.plot(x, y_predict28, 'r', linewidth=1, marker='.', label='predict on 28 days')  
     # plt.plot(x, y_predict_actrual, 'k', linewidth=1, marker='.', label='predict on actual') 
     plt.legend()
-    if TOOLG_ID=='PK_DUVKrF' :
-        plt.yticks(np.linspace(0.15,0.45,9))
-    elif TOOLG_ID=='XE_Sorter' :
-        plt.yticks(np.linspace(0.0,0.12,9))
-    elif TOOLG_ID=='MA_Alps' :
-        plt.yticks(np.linspace(0.0,0.5,9))
-    elif TOOLG_ID=='PW_PIX' :
-        plt.yticks(np.linspace(0.0,0.1,9))    
+    # if TOOLG_ID=='PK_DUVKrF' :
+    #     plt.yticks(np.linspace(0.15,0.45,9))
+    # elif TOOLG_ID=='XE_Sorter' :
+    #     plt.yticks(np.linspace(0.0,0.12,9))
+    # elif TOOLG_ID=='MA_Alps' :
+    #     plt.yticks(np.linspace(0.0,0.5,9))
+    # elif TOOLG_ID=='PW_PIX' :
+    #     plt.yticks(np.linspace(0.0,0.1,9))    
     plt.savefig(imagepath)
 
 

@@ -25,7 +25,7 @@ target_ToolGID = 'PK_DUVKrF'
 
 
 # %%
-#未來所有toolg_list 一起做one hot encoder
+#未來所有toolg_list 一起做one hot encoder(目前未使用)
 def getDummyToolG():
     cat_cols = ['TOOLG_ID']
     df_toolgList_orign=readDataFromFile('./data/ToolG_List.csv')
@@ -33,8 +33,6 @@ def getDummyToolG():
    
     return df_train_eh.columns
    
-
-
 # %%
 #刪除outlier
 def iqrfilter(df, colname, bounds = [.25, .75]):
@@ -52,7 +50,6 @@ def iqrfilter(df, colname, bounds = [.25, .75]):
 # %%
 #NN tunning 參照 Function
 def build_model(hp):
-    
     # from tensorflow.keras import layers
     from kerastuner.tuners import RandomSearch
     model = tf.keras.Sequential()
@@ -70,10 +67,8 @@ def build_model(hp):
         metrics=['accuracy'])
     return model
 
-# %% [markdown]
-# # 繪製模型預測圖
 
-# %%
+# # 繪製模型預測圖
 def drawModelResult(modelType,TOOLG_ID,x,y_actual,y_predict28 , y_predict_actrual,imagepath):
 
     plt.figure(figsize=(6, 5))# 设置图片尺寸
@@ -97,10 +92,8 @@ def drawModelResult(modelType,TOOLG_ID,x,y_actual,y_predict28 , y_predict_actrua
         plt.yticks(np.linspace(0.0,0.1,9))    
     plt.savefig(imagepath)
 
-# %% [markdown]
-# ## NN 模型
 
-# %%
+# ## NN 模型
 #NN tunning Function
 def tuningNN(load_model,x,y):
     #tf.keras.wrappers.scikit_learn.KerasClassifier
@@ -138,7 +131,8 @@ def tuningNN(load_model,x,y):
 # %%
 def trainNN(df):
     import tensorflow as tf
-    save_model_tool = './NN/training_model2.h5'
+    print('============Train NN================ ')
+    save_model_tool = 'D:/projects/ai/poc/MPS/NN/training_model2.h5'
     # save_model_tool = getSavePath(df['TOOLG_ID'].iloc[0],save_model)
     df_result = df.copy(deep=False)
     X_dropped, Y_dropped = preHandleDat(df_result,True)
@@ -211,34 +205,34 @@ def trainNN(df):
 # %%
 def testNN(df,df_real):
     import tensorflow as tf
-    save_model_tool = './NN/training_model2.h5'
+    print('============TEST NN================ ')
+    save_model_tool = 'D:/projects/ai/poc/mps/NN/training_model2.h5'
     model = tf.keras.models.load_model(save_model_tool)
     df_result=df.copy(deep=True)
     
     X_dropped,Y_dropped = preHandleDat(df,False)
     y_predict = model.predict(X_dropped)
     df_result['predict'] = y_predict # 預測
-    
+    print("test acc%:",accsum(df_result))
 
     df_result_real=df_real.copy(deep=True)
     X_dropped_real,Y_dropped_real = preHandleDat(df_result_real,False)
     y_predict_real = model.predict(X_dropped_real)
     df_result_real['predict'] = y_predict_real # 預測
+    print("real acc%:",accsum(df_result_real))
 
-    drawModelResult('NN',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],Y_dropped, y_predict,y_predict_real,'./Result/NNtest2.png')
+    drawModelResult('NN',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],Y_dropped, y_predict,y_predict_real,'d:/Projects/AI/POC/MPS/Result/NNtest2.png')
 
     return df_result
 
 
-# %%
-
+ 
 # ## XG 模型
-
 def trainXG(df):
     import xgboost as xgb
     
     import joblib
-
+    print('============Train XG================ ')
     X,Y = preHandleDat(df,True)
     
     #拆分train validation set
@@ -274,6 +268,7 @@ def trainXG(df):
 
 # %%
 def testXG(df,df_real):
+    print('============test XG================ ')
     X_test,y_test = preHandleDat(df,False)
     # print(X_test)
     #print(X_test,y_test)
@@ -284,22 +279,22 @@ def testXG(df,df_real):
     
     loaded_model.score(X_test, y_test)
     print("r2:", loaded_model.score(X_test, y_test))
-    
+    print("test acc%:",accsum(df_result))
+
     df_result_real=df_real.copy(deep=True)
     X_dropped_real,Y_dropped_real = preHandleDat(df_result_real,False)
     y_predict_real = loaded_model.predict(X_dropped_real)
     df_result_real['predict'] = y_predict_real # 預測
-
-    drawModelResult('XG',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],y_test, y_predict,y_predict_real,'./Result/XGtest2.png')
+    print("real acc%:",accsum(df_result_real))
+    drawModelResult('XG',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],y_test, y_predict,y_predict_real,'d:/Projects/AI/POC/MPS/Result/XGtest2.png')
 
     
     return df_result
 
 
 # ## LR 模型
-
-# %%
 def trainLR(df):
+    print('============Train LR================ ')
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
     import joblib
@@ -330,7 +325,7 @@ def trainLR(df):
 # %%
 def testLR(df,df_real):
     from sklearn.linear_model import LinearRegression
-    
+    print('============TEST LR================ ')
     X_test,y_test = preHandleDat(df,False)
     # print(X_test)
     #print(X_test,y_test)
@@ -341,13 +336,15 @@ def testLR(df,df_real):
     
     loaded_model.score(X_test, y_test)
     print("r2:", loaded_model.score(X_test, y_test))
-    
+    print("train acc%:",accsum(df_result))
+
     df_result_real=df_real.copy(deep=True)
     X_dropped_real,Y_dropped_real = preHandleDat(df_result_real,False)
     y_predict_real = loaded_model.predict(X_dropped_real)
     df_result_real['predict'] = y_predict_real # 預測
+    print("real acc%:",accsum(df_result_real))
 
-    drawModelResult('LR',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],y_test, y_predict,y_predict_real,'./Result/LR.png')
+    drawModelResult('LR',df['TOOLG_ID'].iloc[0],df_result['MFG_DATE'],y_test, y_predict,y_predict_real,'d:/Projects/AI/POC/MPS/Result/LR.png')
 
     return df_result
 
@@ -377,12 +374,12 @@ def preHandleDat(df,isTrain=True):
     # 缺漏值填空
     #========================
     # df = df.fillna(df.median())
-    #df = df.fillna(method='bfill') #往後
+    # df = df.fillna(method='bfill') #往後
     df = df.fillna(method='ffill') #往前
     # df = df.fillna(df.mean())  #用平均值取代 nan   
     # df = df.dropna() # 刪除null值   
-    #df['ColA'].fillna(value=0, inplace=True) #用 0 取代 nan
-    #df['ColA'].fillna(value=df.groupby('ColB')['ColA'].transform('mean'), inplace=True) #利用 groupby()同一group 的平均值
+    # df['ColA'].fillna(value=0, inplace=True) #用 0 取代 nan
+    # df['ColA'].fillna(value=df.groupby('ColB')['ColA'].transform('mean'), inplace=True) #利用 groupby()同一group 的平均值
 
     #==================================================
     #1.特徵縮放
@@ -424,7 +421,7 @@ def preHandleDat(df,isTrain=True):
         df_train_scal[num_cols] = scaler.transform(df[num_cols])
 
 
-    df_train_scal.to_csv('./data/df_train_scal.csv')
+    df_train_scal.to_csv('D:/projects/ai/poc/mps/data/df_train_scal.csv')
     #==================================================
     #2.one hot encoder
     #==================================================
@@ -432,7 +429,7 @@ def preHandleDat(df,isTrain=True):
  
     # global df2_train_eh_before
     df_train_eh =pd.get_dummies(df_train_scal.drop(target_cols, axis=1),columns=cat_cols)
-    df_train_eh.to_csv('./data/df2_train_eh_before.csv')
+    df_train_eh.to_csv('D:/projects/ai/poc/mps/data/df2_train_eh_before.csv')
 
     
     
@@ -447,15 +444,15 @@ def preHandleDat(df,isTrain=True):
     
     if isTrain:
         df2_train_eh_before = df_train_eh.copy(deep=False)
-        df2_train_eh_before.head(0).to_csv('./data/train_eh.csv',index=0) #不保存行索引
+        df2_train_eh_before.head(0).to_csv('D:/projects/ai/poc/mps/data/train_eh.csv',index=0) #不保存行索引
     else:
-        df2_train_eh_before=readDataFromFile('./data/train_eh.csv')
+        df2_train_eh_before=readDataFromFile('D:/projects/ai/poc/mps/data/train_eh.csv')
         df_train_eh = df_train_eh.reindex(columns = df2_train_eh_before.columns, fill_value=0)
         # Ensure the order of column in the test set is in the same order than in train set
         df_train_eh = df_train_eh[df2_train_eh_before.columns]  
  
 
-    df_train_eh.to_csv('./data/df_train_eh.csv')
+    df_train_eh.to_csv('D:/projects/ai/poc/mps/data/df_train_eh.csv')
            
     X_dropped = np.asarray(df_train_eh)
 
@@ -473,12 +470,12 @@ def readDataFromFile(file_path):
 # %%
 def EDA(df_train,targetfeat='MOVE_QTY'):
     
-    pairwise_analysis='off' #相關性和其他型別的資料關聯可能需要花費較長時間。如果超過了某個閾值，就需要設定這個引數為on或者off，以判斷是否需要分析資料相關性。
+    pairwise_analysis='on' #相關性和其他型別的資料關聯可能需要花費較長時間。如果超過了某個閾值，就需要設定這個引數為on或者off，以判斷是否需要分析資料相關性。
     report_train = sv.analyze([df_train, 'train'],
                                     target_feat= targetfeat,
                                     pairwise_analysis = pairwise_analysis
     )
-    report_train.show_html(filepath='./sweetvizHTML/train_report.html' ) # 儲存為html的格式
+    report_train.show_html(filepath='D:/projects/ai/poc/mps/sweetvizHTML/train_report.html' ) # 儲存為html的格式
 
     # compare_subsets_report = sv.compare_intra(df_train,
     #                                         df_train['Finish']==1, # 給條件區分
@@ -490,7 +487,7 @@ def EDA(df_train,targetfeat='MOVE_QTY'):
 
 
 # %%
-df_train_orign=readDataFromFile('./data/TRCT_TrainingData_20210131.csv')
+df_train_orign=readDataFromFile('d:/Projects/AI/POC/MPS/data/TRCT_TrainingData_20210131.csv')
  
 df_train_orign = df_train_orign.loc[df_train_orign['TOOLG_ID']==target_ToolGID]
 #df_train_orign['MFG_DATE'] = pd.to_datetime(test['MFG_DATE'],format='%Y%m%d') 
@@ -515,21 +512,15 @@ df_train = df_train[df_train['NO_HOLD_QTY'].notna()]
 # df_train['TRCT']= df_train['NO_HOLD_QTY']/df_train['MOVE_QTY']
 df_train['TRCT']= df_train['NO_HOLD_QTY']/df_train['MOVE_QTY']
 
-df_train.info()
-
-df_train.isnull().sum()
+print(df_train.info())
+print(df_train.isnull().sum())
  
 # 檢查資料處理  value  是不是有 無限大
 # x,y=preHandleDat(df_train)
- 
 # # # np.isnan(y.any()) #and gets False
 # # # np.isfinite(y.all()) #and gets True
-
 # print(np.all(np.isfinite(x)))
 # print(np.all(np.isfinite(y)))
-
- 
-
  
 # ## 資料分析 Tool
 # EDA(df_train,'TRCT')
@@ -539,7 +530,7 @@ df_train.isnull().sum()
 df_train1 = df_train[df_train['MFG_DATE'] <  pd.to_datetime(final_date)]
 
 # df_train1 =iqrfilter(df_train1,'M_NUM',[0.25, 1]) 
-df_train1['MFG_DATE'].max()
+
 
 # # 模型 訓練
 # %%
@@ -597,17 +588,13 @@ def generationTraininDatFrame(_dfRaw):
     num_cols=['M_NUM','UP_TIME','C_UP_TIME','LOT_SIZE','C_LOT_SIZE','EQP_UTIL','C_EQP_UTIL','U','PROCESS_TIME','WIP_QTY','NO_HOLD_QTY', 'ARRIVAL_WIP_QTY','RUN_WIP_RATIO','C_TC','HOLD_RATE','ENG_LOT_RATE','HOT_LOT_RATE','QUE_LOT_RATE','MOVE_QTY']
     
     df_sum28 = df.groupby(level=0)[num_cols].apply(lambda x: x.shift().rolling(min_periods=1,window=28).mean()).reset_index()
-    
+
     _df_result = pd.DataFrame(columns = df_sum28.columns)
- 
+
     for index, df_sum28_row  in df_sum28.iterrows():
-        
         if index<=28:
             continue
-      
         df_test_today=df_sum28_row
-      
-        
         real_data_cols_withkeys =['MFG_DATE','TOOLG_ID','C_LOT_SIZE','LOT_SIZE','PROCESS_TIME','WIP_QTY','NO_HOLD_QTY','ARRIVAL_WIP_QTY','HOLD_RATE','ENG_LOT_RATE','HOT_LOT_RATE','QUE_LOT_RATE','MOVE_QTY','IS_HOLIDAY']
         real_data_cols =['C_LOT_SIZE','LOT_SIZE','PROCESS_TIME','WIP_QTY','NO_HOLD_QTY','ARRIVAL_WIP_QTY','HOLD_RATE','ENG_LOT_RATE','HOT_LOT_RATE','QUE_LOT_RATE','MOVE_QTY','IS_HOLIDAY']
 
@@ -634,6 +621,7 @@ df_train_sum28 = df_train_sum28_org
 
 
 # %%
+#check偏離值(M_NUM)===========================================
 plt.title('TOOLG_ID:'+ df_train['TOOLG_ID'].iloc[0])
 
 plt.ylabel("M_NUM")
@@ -643,10 +631,8 @@ plt.plot(df_train['MFG_DATE'] , df_train['M_NUM'])
 plt.show()
 
 
-# %%
 
 
-#check偏離值(M_NUM)
 
 plt.title('TOOLG_ID:'+ df_train['TOOLG_ID'].iloc[0])
 plt.ylabel("M_NUM")
@@ -654,17 +640,20 @@ plt.xlabel("date")
 plt.plot(df_train_sum28['MFG_DATE'] , df_train_sum28['M_NUM'])
 # plt.savefig('./'+df['TOOLG_ID'].iloc[0]+'.pdf',width=600, height=350)
 plt.show()
+#===========================================
 
+#check 刪除 訓練資料(df_train_sum28_1) 偏離值===========================================
 df_train_sum28_1  =iqrfilter(df_train_sum28,'TRCT',[.25, 1]) 
 df_train_sum28_1 = df_train_sum28[df_train_sum28['MFG_DATE'] <  pd.to_datetime(final_date)]
-df_train_sum28.to_csv('./data/df_train_sum28.csv')
+# df_train_sum28.to_csv('./data/df_train_sum28.csv')
 
-# ## 計算測試集資料 取28天平均 df
+
 
 # %%
+#(目前正式會 使用的測試資料集 df )
+#計算測試集資料 取28天平均 df======================
+#測試資料集 df 
 df = pd.DataFrame(columns = df_train.columns)
-
-
 for i in range(1,((df_train['MFG_DATE'].max()- datetime.datetime.strptime(final_date, "%Y-%m-%d")).days)+2 ):
     _final_date =   datetime.datetime.strptime(final_date, "%Y-%m-%d")+ datetime.timedelta(days=i)
  
@@ -672,14 +661,12 @@ for i in range(1,((df_train['MFG_DATE'].max()- datetime.datetime.strptime(final_
     df = df.append(_df,ignore_index=True)
 
 # df.to_csv('./data/MyToday20200120_CT.csv')
-
-# %% [markdown]
-# ## 1. 28 均值 訓練 跑 LR
-#實際值
+ 
+#實際值 df_test_real(驗證模型使用)
 df_test_real =  df_train[df_train['MFG_DATE'] >=  pd.to_datetime(final_date)]
 
-#計算準確率
-ef accsum(def_result):
+#計算準確率 accsum
+def accsum(def_result):
     _accsum=0
     def_result[def_result['TRCT'] ==0.0]['TRCT']  =0.0001
     def_result[def_result['predict'] <0]['predict']  =0
@@ -691,80 +678,88 @@ ef accsum(def_result):
             row['TRCT']  =0.00001
         # print(row['TRCT'] )
         if 1- abs((row['predict'] - row['TRCT'])/row['TRCT'] ) >0 :
-            
             _accsum+=(1- abs((row['predict'] - row['TRCT'])/row['TRCT'] ))
-    
     return _accsum/def_result.shape[0]
-
+# ## 2. 28 均值 訓練(df_train_sum28_1) 跑 LR
 trainLR(df_train_sum28_1)
 def_result= testLR(df_train_sum28_1,df_train_sum28_1)
-print("Train acc%:",accsum(def_result))
+# print("Train acc%:",accsum(def_result))
 def_result= testLR(df,df_test_real)
-print("Test acc%:",accsum(def_result)) 
-def_result= testLR(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+# print("Test acc%:",accsum(def_result)) 
+# def_result= testLR(df_test_real,df_test_real)
+# print("real acc%:",accsum(def_result))
 
 
-# ## 2. 28 均值 訓練 跑 XG
+# ## 2. 28 均值 訓練(df_train_sum28_1) 跑 XG
 trainXG(df_train_sum28_1)
 def_result= testXG(df_train_sum28_1,df_train_sum28_1)
-print("Train acc%:",accsum(def_result))
+# print("Train XG acc%(val sum28):",accsum(def_result))
 def_result= testXG(df,df_test_real)
-print("Train acc%:",accsum(def_result))
-def_result= testXG(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+# print("Train XG acc%(test sum28):",accsum(def_result))
+# def_result= testXG(df_test_real,df_test_real)
+# print("real acc%:(real)",accsum(def_result))
  
-# ## 3. 28 均值 訓練 跑 NN
- 
-trainNN(df_train_sum28_1)
-def_result= testNN(df_train_sum28_1,df_train_sum28_1)
-print("Train acc%:",accsum(def_result))
-def_result= testNN(df,df_test_real)
-print("test acc%:",accsum(def_result))
-def_result= testNN(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+# ## 3. 28 均值 訓練(df_train_sum28_1) 跑 NN
+for i in range(1,3):
+    print("NN round :",i)
+    trainNN(df_train_sum28_1)
+    def_result= testNN(df_train_sum28_1,df_train_sum28_1)
+    # print("Train acc%:",accsum(def_result))
+    def_result= testNN(df,df_test_real)
+    # print("test acc%:",accsum(def_result))
+    # def_result= testNN(df_test_real,df_test_real)
+    # print("real acc%:",accsum(def_result))
+    if accsum(def_result) >0:
+        break
+    #=========================================================================
 
 # # 訓練並測試模型( 每日歷史資料 訓練)
 # ##  1. 每日歷史資料(df_train1) 跑 LR
-
+#驗證訓練集 train
 trainLR(df_train1)
 def_result = testLR(df_train1,df_train1)
-print("train acc%:",accsum(def_result))
-#計算準確率分數
+# print("train acc%:",accsum(def_result))
+#驗證測試集  test(比較三者分數與圖形)
 def_result = testLR(df,df_test_real)
-print("test acc%:",accsum(def_result))
-#計算準確率分數
-def_result= testLR(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+# print("test acc%:",accsum(def_result))
+# ##計算  real 分數使用
+# def_result= testLR(df_test_real,df_test_real)
+# print("real acc%:",accsum(def_result))
 
 # ## 2.每日歷史資料 跑 XGBoost
 #驗證訓練集 train
 trainXG(df_train1)
 def_result = testXG(df_train1,df_train1)
-print("Train acc%:",accsum(def_result)) 
-#驗證測試集  test
+# print("Train acc%:",accsum(def_result)) 
+#驗證測試集  test(比較三者分數與圖形)
 def_result = testXG(df,df_test_real)
-print("Train acc%:",accsum(def_result)) 
-def_result= testXG(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+# print("Train acc%:",accsum(def_result)) 
+# ##計算  real 分數使用
+# def_result= testXG(df_test_real,df_test_real)
+# print("real acc%:",accsum(def_result)) ##計算  real 分數使用
 
 
-# %%
-df_train1.columns
+ 
 
-# %% [markdown]
+ 
 # ## 3.每日歷史資料 跑 NN
-trainNN(df_train1)
-def_result = testNN(df_train1,df_train1)
-print("Train acc%:",accsum(def_result)) 
-def_result = testNN(df,df_test_real)
-print("test acc%:",accsum(def_result)) 
-def_result= testNN(df_test_real,df_test_real)
-print("real acc%:",accsum(def_result))
+#驗證訓練集 train
+for i in range(1,3):
+    print("NN round :",i)
+    trainNN(df_train1)
+    def_result = testNN(df_train1,df_train1)
+    # print("Train acc%:",accsum(def_result)) 
+    #驗證測試集  test(比較三者分數與圖形)
+    def_result = testNN(df,df_test_real)
+    # print("test acc%:",accsum(def_result)) 
+    # ##計算  real 分數使用
+    # def_result= testNN(df_test_real,df_test_real)
+    # print("real acc%:",accsum(def_result))
 
-# df_test_real.to_csv("./data/df_test_real.csv")
-# df_train_sum28_1.to_csv('./data/df_train_sum28_1.csv')
-# df.to_csv('./data/df.csv')
-
+    # df_test_real.to_csv("./data/df_test_real.csv")
+    # df_train_sum28_1.to_csv('./data/df_train_sum28_1.csv')
+    # df.to_csv('./data/df.csv')
+    if accsum(def_result) >0:
+        break
 
 

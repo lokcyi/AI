@@ -35,7 +35,7 @@ class MLSample(MLBase):
     ##資料轉換##    
     def dataTransform(self):
         self.dfInputData['MFG_MONTH'] = self.dfInputData['MFG_MONTH'].astype(str)   
-        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='85-EMA0130']  
+        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='86-DIA0120']  
 
     ##填補遺漏值##
     def fillnull(self):

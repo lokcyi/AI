@@ -8,15 +8,41 @@ from sklearn.preprocessing import MinMaxScaler #最小最大值標準化[0,1]
 from sklearn.preprocessing import RobustScaler #中位數和四分位數標準化
 from sklearn.preprocessing import MaxAbsScaler #絕對值最大標準化
  
- 
+import featuretools as ft
+import featuretools.variable_types as vtypes
 
 class Data:    
     @staticmethod
     def readData(inputfile):
+        print('讀CSV檔',inputfile)
         df = pd.read_csv(inputfile)
         df=df.dropna(axis=1,how='all')
         df.info() 
-        return Data.analyzeData(df) 
+        return Data.analyzeData(df)
+    @staticmethod
+    def merge(dataFiles):
+        index =0
+        for dfFile in dataFiles['files']:
+            print(dfFile)
+            if index ==0:
+                _dfInputData1,_strColumnlist1,_numbericColumnlist1,_nullColumnlist1=Data.readData(dfFile) 
+                
+                # _df_result.
+            else:
+                datasetRels = dataFiles['relations'][index-1]
+                _dfInputData2,_strColumnlist2,_numbericColumnlist2,_nullColumnlist2=Data.readData(dfFile) 
+                _dfInputData1.set_index(datasetRels[0])
+                _dfInputData2.set_index(datasetRels[1])
+                df_merge = Data.mergeDataFrame(_dfInputData1,_dfInputData2,datasetRels[0],datasetRels[1])
+                _dfInputData1 = df_merge.copy(deep=False)
+            index+=1
+        
+        return  Data.analyzeData(df_merge)
+    @staticmethod        
+    def mergeDataFrame(dfleft,dfright,LeftKeys,RightKeys):
+        # dfright.columns = [str(col) + '_'+joinTableName for col in df.columns]
+        df_merge = pd.merge(dfleft, dfright, left_on=LeftKeys, right_on=RightKeys,how="inner")
+        return df_merge   
     @staticmethod
     def analyzeData(df):
         print('非數值欄位：')

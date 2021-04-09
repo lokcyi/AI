@@ -6,9 +6,18 @@ import matplotlib.pyplot as plt
 import jinja2
 import webbrowser
 import os  
+from enum import Enum
 from Util.ModelAnalysis import ModelAnalysis
 from Util.Data import Data  
 from ModelClass import *
+
+class fillNaType(Enum):
+    MEAN = 'mean'
+    BFILL = 'bfill'
+    FFILL = 'ffill'
+    DROPNA = 'dropna'
+    ZERRO = 'zero'
+    MODE = 'mode'
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -30,7 +39,10 @@ class MLBase(metaclass=abc.ABCMeta):
     @config.setter
     def config(self, value):
         self._config = value   
-   
+
+    def getMergeDataFile(self):
+        self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.merge(self.config.dataFiles) 
+        self.dfInputData.to_csv(self.config.datafile, index=False)
     def getInputData(self):
         self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.readData(self.config.datafile) 
 
@@ -85,6 +97,9 @@ class MLBase(metaclass=abc.ABCMeta):
     def run(self):
         print(bcolors.HEADER + "==="+MLBase.ver+"===================================" + bcolors.ENDC)
         print(bcolors.WARNING + "===讀取資料===================" + bcolors.ENDC)
+        # "config.dataFiles"  in self.__dict__
+        if hasattr(self.config, 'dataFiles'):
+            self.getMergeDataFile()
         self.getInputData()
         print(bcolors.WARNING + "===資料轉換===================" + bcolors.ENDC)
         self.dataTransform()

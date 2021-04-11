@@ -32,7 +32,8 @@ class MLSample(MLBase):
         self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0) 
     
     ##特徵轉換##
-    def featureTransform(self):        
+    def featureTransform(self):   
+        self.dfInputDataOrg=  self.dfInputData.copy(deep=False)     
         self.dfInputData = pd.get_dummies(self.dfInputData,columns=['TOOLG_ID'],prefix_sep='_')  
 
     ##準備訓練資料##
@@ -40,6 +41,9 @@ class MLSample(MLBase):
         return self.dfInputData[(self.dfInputData['MFG_DATE']>='20200101')&(self.dfInputData['MFG_DATE']<='20210211')]         
 
     ##準備測試資料##
+    def getTestingDataOrg(self):
+        return self.dfInputDataOrg[(self.dfInputDataOrg['MFG_DATE']>='20210212')&(self.dfInputDataOrg['MFG_DATE']<='20210228')]  
+   
     def getTestingData(self):
         return self.dfInputData[(self.dfInputData['MFG_DATE']>='20210212')&(self.dfInputData['MFG_DATE']<='20210228')]     
 

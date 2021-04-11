@@ -1,14 +1,8 @@
 import pandas as pd
 import numpy as np 
 from enum import Enum
-from BaseClass.MLBase import MLBase 
-class fillNaType(Enum):
-    MEAN = 'mean'
-    BFILL = 'bfill'
-    FFILL = 'ffill'
-    DROPNA = 'dropna'
-    ZERRO = 'zero'
-    MODE = 'mode'
+from BaseClass.MLBase import MLBase ,fillNaType
+
 class MLSample(MLBase):
     def __init__(self):
         super(MLSample, self).__init__()
@@ -16,14 +10,14 @@ class MLSample(MLBase):
         self.config.targetCol = "QTY"
         self.config.xAxisCol = "MFG_MONTH"
         self.config.includeColumns = []
-        self.config.excludeColumns =['PM','TS','Tool.MFG_MONTH','Tool.TOOL_ID'
-        ]
+        self.config.excludeColumns =['PM','TS','Tool.MFG_MONTH','Tool.TOOL_ID','Tool.EQP_AVAIL_RATE'
+]
         self.config.fillNaType=fillNaType.MEAN
-        self.config.modelFileKey="Parts_Tools_30" 
-        self.config.forceRetrain=False 
+        self.config.modelFileKey="Parts_Tools_30_ALL" 
+        self.config.forceRetrain=True 
          
         # self.config.runModel=['DNN','DNN1k','LRModel','NN','RFModel','XG']
-        self.config.runModel=['LRModel','CAT','NN']
+        self.config.runModel=['LRModel']# s,'CAT','NN']
         #self.config.runModel=['CAT']
         #self.scaler
         #self.scalerColumnList=[]
@@ -31,7 +25,7 @@ class MLSample(MLBase):
     ##資料轉換##    
     def dataTransform(self):
         self.dfInputData['MFG_MONTH'] = self.dfInputData['MFG_MONTH'].astype(str)   
-        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='85-ECT0010']  
+        # self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='85-ECT0010']  
 
     ##填補遺漏值##
     def fillnull(self):

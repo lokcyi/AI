@@ -119,10 +119,11 @@ class MLBase(metaclass=abc.ABCMeta):
         self.X = np.asarray(self.dfTraining.drop(self.config.targetCol, axis=1))
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
         print(bcolors.WARNING + "===準備測試資料================" + bcolors.ENDC)
-        self.dfTestingOrg=self.getTestingDataOrg()
+        self.dfTestingRaw=self.getTestingDataOrg()
         self.dfTesting=self.getTestingData()
         self.dfOriTesting=self.dfTesting          
         self.dfTesting=self.dfTesting.drop(columns=[self.config.xAxisCol])
+     
         self.XTest = np.asarray(self.dfTesting.drop(self.config.targetCol, axis=1))
         print(bcolors.OKBLUE + "===訓練模型====================" + bcolors.ENDC)
         self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)       
@@ -142,7 +143,7 @@ class MLBase(metaclass=abc.ABCMeta):
             mClass=self.config.runModel[i]
             # t = np.arange(len(self.XTest)) # 创建t变量
             # Data.testModel(t,self.model[mClass],self.mlKind[mClass],self.dfOriTesting,self.config) 
-            Data.testModel(self.XTest,self.model[mClass],self.mlKind[mClass],self.dfTestingOrg,self.config) 
+            Data.testModel(self.XTest,self.model[mClass],self.mlKind[mClass],self.dfTestingRaw,self.config) 
             
          
         plt.tight_layout()

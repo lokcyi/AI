@@ -112,7 +112,10 @@ class Data:
         df2=df.copy(deep=False)
         df2.insert(len(df2.columns), 'Predict', yTest)     
         # plt.figure(figsize=(20,6))
-        plt.title((mlKind+":{0}%  {1}%").format(Data.accsum(df2,config.targetCol),Data.accsumAggrigation(df2,config.targetCol,['PART_NO','MFG_MONTH'])))    
+        if hasattr(config, 'aggreationCol'):
+            plt.title((mlKind+":{0}%  {1}%").format(Data.accsum(df2,config.targetCol),Data.accsumAggrigation(df2,config.targetCol,['PART_NO','MFG_MONTH'])))    
+        else:
+            plt.title((mlKind+":{0}% ").format(Data.accsum(df2,config.targetCol)))    
         plt.xlabel(config.xAxisCol)
         plt.xticks(rotation=90)        
         plt.ylabel(config.targetCol)
@@ -126,7 +129,8 @@ class Data:
         
         df2.to_csv('./Report/'+config.modelFileKey+'_'+mlKind+'.csv',index=False)
         print("Test acc%:",mlKind,Data.accsum(df2,config.targetCol)) 
-        print("Test acc Aggreation%:",mlKind,Data.accsumAggrigation(df2,config.targetCol,['PART_NO','MFG_MONTH'])) 
+        if hasattr(config, 'aggreationCol'):
+            print("Test acc Aggreation%:",mlKind,Data.accsumAggrigation(df2,config.targetCol,config.aggreationCol)) 
 
 
 # if __name__ == "__main__": 

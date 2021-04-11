@@ -19,6 +19,7 @@ class MLSample(MLBase):
         self.config.datafile = "./data/Parts_Tools_30NEW.csv" 
         self.config.targetCol = "QTY"
         self.config.xAxisCol = "MFG_MONTH"
+        self.config.aggreationCol = ['PART_NO','MFG_MONTH']
         self.config.includeColumns = []
         self.config.excludeColumns =['PM','TS','ENG','NST','STOCK_EVENT_TIME','TOOL_ID']
         self.config.fillNaType=fillNaType.MEAN
@@ -26,7 +27,7 @@ class MLSample(MLBase):
         self.config.forceRetrain=True
          
         # self.config.runModel=['DNN','DNN1k','LRModel','NN','RFModel','XG']
-        self.config.runModel=['LRModel','NN','CAT']
+        self.config.runModel=['LRModel']#,'NN','CAT']
 
         #self.config.runModel=['CAT']
         #self.scaler
@@ -35,7 +36,7 @@ class MLSample(MLBase):
     ##資料轉換##    
     def dataTransform(self):
         self.dfInputData['MFG_MONTH'] = self.dfInputData['MFG_MONTH'].astype(str)   
-        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='86-DIA0120']  
+        # self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']=='86-DIA0120']  
 
     ##填補遺漏值##
     def fillnull(self):

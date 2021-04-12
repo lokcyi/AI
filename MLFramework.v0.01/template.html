@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="big5">
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+        body {
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            text-align: right;
+        }
+        table tr {
+            border-bottom: 1px solid
+        }
+        table th, table td {
+            padding: 10px 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>My Report</h1>
+{% for element in elements %}{{loop.index}}  {{ element }} {% endfor %}
+<table>
+<tr>
+<td>
+{{ fitable1 }}
+</td><td>
+{{ fitable2 }}
+</td><td>
+{{ fitable3 }}
+</td><td>
+{{ fitable4 }}
+</td><td>
+{{ fitable5 }}
+</td>
+</tr>
+<tr>
+<td>
+{{ fitable6 }}
+</td><td>
+{{ fitable7 }}
+</td><td>
+{{ fitable8 }}
+</td><td>
+{{ fitable9 }}
+</td><td>
+{{ fitable10 }}
+</td>
+</tr>
+<tr>
+<td>
+{{ sstable1 }}
+</td><td>
+{{ sstable2 }}
+</td><td>
+{{ sstable3 }}
+</td><td>
+{{ sstable4 }}
+</td><td>
+{{ sstable5 }}
+</td>
+</tr>
+<tr>
+<td>
+{{ sstable6 }}
+</td><td>
+{{ sstable7 }}
+</td><td>
+{{ sstable8 }}
+</td><td>
+{{ sstable9 }}
+</td><td>
+{{ sstable10 }}
+</td>
+</tr>
+</table>
+<img src={{ ploimage }} width="100%">
+
+</body>
+</html>

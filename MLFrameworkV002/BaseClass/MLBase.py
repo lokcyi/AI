@@ -54,9 +54,21 @@ class MLBase(metaclass=abc.ABCMeta):
         self.dfInputData=Data.filterColumns(self.dfInputData,self.config)
         self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.analyzeData(self.dfInputData)  
     
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def fillnull(self):
-        return NotImplemented    
+        # return NotImplemented    
+        if(self.config.fillNaType.value=='mean'): 
+            self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
+        elif(self.fillNaType.value=='mode'):  
+            self.dfInputData = self.dfInputData.fillna(self.dfInputData.mode())            
+        elif(self.fillNaType.value=='bfill'):  
+            self.dfInputData = self.dfInputData.fillna(method='bfill').fillna(self.dfInputData.median())
+        elif(self.fillNaType.value=='ffill'):  
+            self.dfInputData = self.dfInputData.fillna(method='ffill').fillna(self.dfInputData.median())
+        elif(self.fillNaType.value=='dropna'): 
+            self.dfInputData = self.dfInputData.dropna()
+        elif(self.fillNaType.value=='zero'):   
+            self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0) 
 
     def scalerData(self):
         self.dfInputData=Data.scalerData(self.dfInputData,'MinMaxScaler',self.numbericColumnlist,self.config)

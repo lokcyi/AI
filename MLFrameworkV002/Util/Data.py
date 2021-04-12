@@ -8,8 +8,8 @@ from sklearn.preprocessing import MinMaxScaler #最小最大值標準化[0,1]
 from sklearn.preprocessing import RobustScaler #中位數和四分位數標準化
 from sklearn.preprocessing import MaxAbsScaler #絕對值最大標準化
  
-import featuretools as ft
-import featuretools.variable_types as vtypes
+# import featuretools as ft
+# import featuretools.variable_types as vtypes
 
 class Data:    
     @staticmethod

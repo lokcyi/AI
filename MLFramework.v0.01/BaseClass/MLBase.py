@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import jinja2
 import webbrowser
 import os  
+import logging
 from enum import Enum
 from Util.ModelAnalysis import ModelAnalysis
 from Util.Data import Data  
+from Util.Logger import Logger
 from ModelClass import *
 class fillNaType(Enum):
     MEAN = 'mean'
@@ -29,9 +31,11 @@ class bcolors:
     UNDERLINE = '\033[4m'
 class MLBase(metaclass=abc.ABCMeta):
     ver="MLFramework v0.01"
-
     def __init__(self):
         self._config = MLConfig()
+        self.log = Logger(name='MLFramework')
+        self.log.debug('ML Base init..%s' % self.__class__.__name__)
+ 
     @property
     def config(self):
         return self._config
@@ -109,34 +113,45 @@ class MLBase(metaclass=abc.ABCMeta):
 
     def run(self):
         print(bcolors.HEADER + "==="+MLBase.ver+"===================================" + bcolors.ENDC)
+        self.log.debug("Part No : %s" % self.config.partno)
         if hasattr(self.config, 'dataFiles'):
             print(bcolors.WARNING + "===資料合併===================" + bcolors.ENDC)
+            self.log.debug("===Data Merge===================%s" % self.__class__.__name__)
             self.getMergeDataFile()
         print(bcolors.WARNING + "===讀取資料===================" + bcolors.ENDC)
+        self.log.debug("===Fetch Data===================%s" % self.__class__.__name__)
         self.getInputData()
         print(bcolors.WARNING + "===資料轉換===================" + bcolors.ENDC)
+        self.log.debug("===Data Transform===================%s" % self.__class__.__name__)
         self.dataTransform()
         print(bcolors.WARNING + "===過濾資料===================" + bcolors.ENDC)
+        self.log.debug("===Data Filter===================%s" % self.__class__.__name__)
         self.filterData()
         print(bcolors.WARNING + "===填補遺漏值==================" + bcolors.ENDC)
+        self.log.debug("===fill None==================%s" % self.__class__.__name__)
         self.fillnull()
         self.dfInputData.info()
         print(bcolors.WARNING + "===特徵縮放===================" + bcolors.ENDC)
+        self.log.debug("===scale===================%s" % self.__class__.__name__)
         self.scalerData()
         print(bcolors.WARNING + "===特徵轉換===================" + bcolors.ENDC)
+        self.log.debug("===feature Transform===================%s" % self.__class__.__name__)
         self.featureTransform()
         self.dfInputData.info()
         print(bcolors.WARNING + "===準備訓練資料================" + bcolors.ENDC)
+        self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
         self.dfTraining=self.getTrainingData()
         self.dfTraining=self.dfTraining.drop(columns=[self.config.xAxisCol])     
         self.X = np.asarray(self.dfTraining.drop(self.config.targetCol, axis=1))
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
         print(bcolors.WARNING + "===準備測試資料================" + bcolors.ENDC)
+        self.log.debug("===Ready for Testing===================%s" % self.__class__.__name__)
         self.dfTesting=self.getTestingData()
         self.dfOriTesting=self.dfTesting          
         self.dfTesting=self.dfTesting.drop(columns=[self.config.xAxisCol])
         self.XTest = np.asarray(self.dfTesting.drop(self.config.targetCol, axis=1))
         print(bcolors.OKBLUE + "===訓練模型====================" + bcolors.ENDC)
+        self.log.debug("===Model Training===================%s" % self.__class__.__name__)
         self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)       
         self.model={}
         self.mlKind={}
@@ -147,6 +162,7 @@ class MLBase(metaclass=abc.ABCMeta):
             self.model[mClass],self.mlKind[mClass],self.mFeatureImportances[mClass]=mObj.doTraining(self.X,self.y,self.config) 
 
         print(bcolors.OKBLUE + "===測試模型====================" + bcolors.ENDC)
+        self.log.debug("===Model Testing===================%s" % self.__class__.__name__)
         plt.style.use('ggplot')
         plt.figure(figsize=(20,6*len(self.config.runModel)),dpi=60)
         for i in range(len(self.config.runModel)):            
@@ -157,7 +173,10 @@ class MLBase(metaclass=abc.ABCMeta):
         plt.tight_layout()
         plt.savefig('./Report/{0}_plot.svg'.format(self.config.modelFileKey))  
         print(bcolors.OKBLUE + "===產生報表====================" + bcolors.ENDC)
+        self.log.debug("===Create Report===================%s" % self.__class__.__name__)
         self.genHTMLReport()        
+
+
 
 
 class MLConfig:

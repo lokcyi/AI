@@ -4,8 +4,15 @@ from pandas import DataFrame
 import joblib as joblib
 import os
 import tensorflow as tf
+
+from Util.Logger import Logger
 class MLModelBase(metaclass=abc.ABCMeta): 
+    def __init__(self):
+        self.log = Logger(name='MLFramework')
+        self.log.debug('ML Model Base init..%s' % self.__class__.__name__)
+
     def doTraining(self,X,y,config):
+        self.log.debug('%s doTraining' % self.__class__.__name__)
         modelname=self.__class__.__name__        
         h5File="./model/"+modelname+"_{0}.h5".format(config.modelFileKey)        
         modelFile="./model/"+modelname+"_{0}.model".format(config.modelFileKey)

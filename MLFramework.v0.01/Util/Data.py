@@ -7,12 +7,13 @@ from sklearn.preprocessing import StandardScaler #平均&變異數標準化 平�
 from sklearn.preprocessing import MinMaxScaler #最小最大值標準化[0,1]
 from sklearn.preprocessing import RobustScaler #中位數和四分位數標準化
 from sklearn.preprocessing import MaxAbsScaler #絕對值最大標準化
- 
- 
+from Util.Logger import Logger
 
-class Data:    
+class Data:   
+    log = Logger(name='MLFramework')
     @staticmethod
     def readData(inputfile):
+        Data.log.debug('readData %s' % inputfile)
         df = pd.read_csv(inputfile)
         df=df.dropna(axis=1,how='all')
         df.info() 
@@ -75,12 +76,18 @@ class Data:
         _accsum=0 
         for index,row in def_result.iterrows():
             #避免當分母為0 會無法計算
+            if row[target_cols]==0 and row['Predict']==0 :
+                row[target_cols] =1
+                row['Predict'] =1
+            elif row[target_cols] ==0 and row['Predict']!=0:
+                row[target_cols]  =0.00001
+
             if row[target_cols] <0 :
                 row[target_cols]  =0.00001
-            if row[target_cols] ==0.0:
-                row[target_cols]  =0.00001
+
             if row['Predict'] <0 :
                 row['Predict']  =0 
+
             if 1- abs((row['Predict'] - row[target_cols])/row[target_cols] ) >0 : 
                 _accsum+=(1- abs((row['Predict'] - row[target_cols])/row[target_cols] ))
         
@@ -101,4 +108,21 @@ class Data:
         plt.legend()
         plt.ylim(bottom=0)  
         df2.to_csv('./Report/'+config.modelFileKey+'_'+mlKind+'.csv',index=False)
-        print("Test acc%:",mlKind,Data.accsum(df2,config.targetCol))  
+        print(mlKind+" Test acc%:",mlKind,Data.accsum(df2,config.targetCol))  
+        _acc = mlKind,Data.accsum(df2,config.targetCol)
+        Data.log.debug(mlKind+" Test acc: :%.2f" % _acc[1])
+        def_result_summary = df2[[config.targetCol,'Predict']].sum()
+        if(def_result_summary['QTY']!=0):
+            totol_acc = (1- abs(def_result_summary['Predict'] -def_result_summary['QTY'])/def_result_summary['QTY'])*100
+            print(mlKind+" Test Aggreation acc :%f ",totol_acc)
+            Data.log.debug(mlKind+" Test Aggreation acc :%f " % totol_acc)
+
+            
+            dfraw=pd.read_csv(config.datafile) 
+            partsData = dfraw[dfraw['PART_NO']==config.partno]
+            qtymean = partsData[config.targetCol].mean()
+
+
+            totol_acc = (1- abs(qtymean -def_result_summary['QTY'])/def_result_summary['QTY'])*100
+            print(mlKind+" Test Mean (%f) acc :%f  ", (qtymean ,totol_acc))
+            Data.log.debug(mlKind+" Test Mean (%f)  acc :%f " % (qtymean ,totol_acc))

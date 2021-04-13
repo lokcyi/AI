@@ -22,28 +22,32 @@ class MLSample(MLBase):
         self.config.xAxisCol = "MFG_MONTH"
         self.config.aggreationCol = ['PART_NO','MFG_MONTH']
         self.config.includeColumns = []
-        self.config.excludeColumns =['PM','TS','ENG','NST','STOCK_EVENT_TIME','TOOL_ID']
+        self.config.excludeColumns =['PM','TS','ENG','NST' ,'TOOL_ID','BACKUP_BY_RATE','SAMPLING_RATE']   #,'CHANGE_RECIPE'
+
         self.config.fillNaType=fillNaType.MEAN
-        self.config.modelFileKey="Parts_Tools_30Quater_85-EMA0130" 
-        self.config.forceRetrain=True
+        self.config.modelFileKey="Parts_Tools_30Quater_85-EKA0190" 
+        self.config.forceRetrain=False
          
         # self.config.runModel=['DNN','DNN1k','LRModel','NN','RFModel','XG']
-        self.config.runModel=['LRModel','NN','CAT']
-        self.partno='85-EMA0130'
-# 85-EMA0920
-# 85-EMA0130
-# 85-EMA0910 怪
-# 85-ECT0010 good
-# 85-EMA0900 NG
-# 86-DIA0120 OK
-# 87-WPT1070 soso
-# 85-EKA0270 not bad
-# 85-EKA0190 goodß
+        self.config.runModel=['LRModel','NN','CAT','XG']
+        # self.config.runModel=['XG']
+        self.config.partno='85-EKA0190'
+
+# 85-EMA0920 OK
+# 85-EMA0130 OK
+
+# 85-ECT0010  一值都超高
+# 85-EMA0910  只有用兩筆 很難預估
+# 85-EMA0900  只有用一筆 很難預估
+# 86-DIA0120 Good 
+# 87-WPT1070 Good 
+# 85-EKA0270 Good
+# 85-EKA0190 Good 
         # self.config.runModel=['CAT']
         #self.scaler
         #self.scalerColumnList=[]
         self.dataPreHandler()
-    ##資料轉換##    
+    ##資料合併##   
     def dataPreHandler(self):
         df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
         df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
@@ -56,10 +60,10 @@ class MLSample(MLBase):
         df_merge.to_csv(self.config.datafile, index=False)
 
         
-
+    ##資料轉換##   
     def dataTransform(self):
         self.dfInputData['MFG_MONTH'] = self.dfInputData['MFG_MONTH'].astype(str)   
-        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']==self.partno]  
+        self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']==self.config.partno]  
 
     ##填補遺漏值##
     def fillnull(self):
@@ -96,4 +100,12 @@ class MLSample(MLBase):
 
 if __name__ == "__main__": 
     sample=MLSample()
-    sample.run()
+
+    partList =['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920','86-DIA0120','87-WPT1070']
+    for p in partList:
+        sample.config.modelFileKey="Parts_Tools_30Quater_{}".format(p) 
+        sample.config.partno=p
+        sample.run()
+
+    
+    

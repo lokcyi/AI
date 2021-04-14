@@ -1,4 +1,4 @@
-# 用機台增量資料~~產生到2015年的數據
+#不增量資料 只從202002月 做預測
 
 from os import replace
 import pandas as pd
@@ -19,7 +19,7 @@ class MLSample(MLBase):
         #             ,[['MFG_MONTH'],['MFG_MONTH']]
         #             ]
         # } 
-        self.config.datafile = "./data/Parts_Tools_30Quater.csv" 
+        self.config.datafile = "./data/Parts_Tools_30Month.csv" 
         self.config.targetCol = "QTY"
         self.config.xAxisCol = "MFG_MONTH"
         self.config.aggreationCol = ['PART_NO','MFG_MONTH']
@@ -52,11 +52,11 @@ class MLSample(MLBase):
     ##資料合併##   
     def dataPreHandler(self):
         df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
-        df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
+        # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
         df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
-        df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
-        df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_20152021.csv")
-        df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
+        # df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
+        df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_202002.csv")
+        #df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
         df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
         df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
         df_merge.to_csv(self.config.datafile, index=False)
@@ -89,22 +89,22 @@ class MLSample(MLBase):
 
     ##準備訓練資料##
     def getTrainingData(self):
-        getTrainingData = self.dfInputData[(self.dfInputData['MFG_MONTH']>='2015Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]  
-        getTrainingData=getTrainingData.drop(columns='MFG_MONTH')
-        return self.dfInputData[(self.dfInputData['MFG_MONTH']>='2015Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]         
+        self.dfInputData[(self.dfInputData['MFG_MONTH']>='202002')&(self.dfInputData['MFG_MONTH']<='202012')].to_csv('./log/trainingDATA_{}.csv'.format(self.config.partno))  
+        return self.dfInputData[(self.dfInputData['MFG_MONTH']>='202002')&(self.dfInputData['MFG_MONTH']<='202012')]       
 
     ##準備測試資料##
     def getTestingDataRaw(self):
-        return self.dfInputDataRaw[(self.dfInputDataRaw['MFG_MONTH']>='2021Q1')&(self.dfInputDataRaw['MFG_MONTH']<='2021Q1')]  
+        return self.dfInputDataRaw[(self.dfInputDataRaw['MFG_MONTH']>='202002')&(self.dfInputDataRaw['MFG_MONTH']<='202012')]      
 
-    def getTestingData(self):
-        return self.dfInputData[(self.dfInputData['MFG_MONTH']>='2021Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]     
+    def getTestingData(self):  
+        self.dfInputData[(self.dfInputData['MFG_MONTH']>='202101')&(self.dfInputData['MFG_MONTH']<='202103')].to_csv('./log/testingDATA_{}.csv'.format(self.config.partno))  
+        return self.dfInputData[(self.dfInputData['MFG_MONTH']>='202101')&(self.dfInputData['MFG_MONTH']<='202103')]    
 
 if __name__ == "__main__": 
     sample=MLSample()
 
-    #partList =['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920','86-DIA0120','87-WPT1070']
-    partList =['87-WPT1070']
+    partList =['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920','86-DIA0120','87-WPT1070']
+    # partList =['87-WPT1070']
     for p in partList:
         sample.config.modelFileKey="Parts_Tools_30Quater_{}".format(p) 
         sample.config.partno=p

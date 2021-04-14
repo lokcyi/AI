@@ -66,7 +66,7 @@ class MLSample(MLBase):
 
     ##準備測試資料##
     def getTestingDataRaw(self):
-        return self.dfInputDataRaw[(self.dfInputDataOrg['MFG_MONTH']>='202101')&(self.dfInputDataOrg['MFG_MONTH']<='202103')]  
+        return self.dfInputDataRaw[(self.dfInputDataRaw['MFG_MONTH']>='202101')&(self.dfInputDataRaw['MFG_MONTH']<='202103')]  
 
     def getTestingData(self):
         return self.dfInputData[(self.dfInputData['MFG_MONTH']>='202101')&(self.dfInputData['MFG_MONTH']<='202103')]     

@@ -141,7 +141,7 @@ class MLBase(metaclass=abc.ABCMeta):
         print(bcolors.WARNING + "===準備訓練資料================" + bcolors.ENDC)
         self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
         self.dfTraining=self.getTrainingData()
-        self.dfTraining=self.dfTraining.drop(columns=[self.config.xAxisCol])     
+        self.dfTraining=self.dfTraining.drop(columns=[self.config.xAxisCol])   
         self.X = np.asarray(self.dfTraining.drop(self.config.targetCol, axis=1))
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
         print(bcolors.WARNING + "===準備測試資料================" + bcolors.ENDC)

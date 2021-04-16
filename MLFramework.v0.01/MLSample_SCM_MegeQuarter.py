@@ -89,7 +89,8 @@ class MLSample(MLBase):
 
     ##準備訓練資料##
     def getTrainingData(self):
-        getTrainingData = self.dfInputData[(self.dfInputData['MFG_MONTH']>='2015Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]  
+        getTrainingData = self.dfInputData[(self.dfInputData['MFG_MONTH']>='2015Q1')&(self.dfInputData['MFG_MONTH']<'2021Q1')]  
+        getTrainingData.to_csv('./log/trainingDATAQuaterFill_{}.csv'.format(self.config.partno))  
         getTrainingData=getTrainingData.drop(columns='MFG_MONTH')
         return self.dfInputData[(self.dfInputData['MFG_MONTH']>='2015Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]         
 
@@ -98,15 +99,16 @@ class MLSample(MLBase):
         return self.dfInputDataRaw[(self.dfInputDataRaw['MFG_MONTH']>='2021Q1')&(self.dfInputDataRaw['MFG_MONTH']<='2021Q1')]  
 
     def getTestingData(self):
+        self.dfInputData[(self.dfInputData['MFG_MONTH']>='2021Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')].to_csv('./log/testingDATAQuaterFill_{}.csv'.format(self.config.partno))  
         return self.dfInputData[(self.dfInputData['MFG_MONTH']>='2021Q1')&(self.dfInputData['MFG_MONTH']<='2021Q1')]     
 
 if __name__ == "__main__": 
     sample=MLSample()
 
     #partList =['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920','86-DIA0120','87-WPT1070']
-    partList =['87-WPT1070']
+    partList =['86-DIA0120']
     for p in partList:
-        sample.config.modelFileKey="Parts_Tools_30Quater_{}".format(p) 
+        sample.config.modelFileKey="Parts_Tools_30_Quater_{}".format(p) 
         sample.config.partno=p
         sample.run()
 

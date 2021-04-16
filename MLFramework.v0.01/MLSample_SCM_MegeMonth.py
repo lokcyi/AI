@@ -28,7 +28,7 @@ class MLSample(MLBase):
 
         self.config.fillNaType=fillNaType.MEAN
         self.config.modelFileKey="Parts_Tools_30Quater_85-EKA0190" 
-        self.config.forceRetrain=True
+        self.config.forceRetrain=False
          
         # self.config.runModel=['DNN','DNN1k','LRModel','NN','RFModel','XG']
         self.config.runModel=['LRModel','NN','CAT','XG']
@@ -102,11 +102,11 @@ class MLSample(MLBase):
 
 if __name__ == "__main__": 
     sample=MLSample()
-
-    partList =['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920','86-DIA0120','87-WPT1070']
+    #['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920',
+    partList =['86-DIA0120','87-WPT1070']
     # partList =['87-WPT1070']
     for p in partList:
-        sample.config.modelFileKey="Parts_Tools_30Quater_{}".format(p) 
+        sample.config.modelFileKey="Parts_Tools_30Month_Org_{}".format(p) 
         sample.config.partno=p
         sample.run()
 

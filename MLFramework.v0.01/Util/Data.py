@@ -111,18 +111,27 @@ class Data:
         print(mlKind+" Test acc%:",mlKind,Data.accsum(df2,config.targetCol))  
         _acc = mlKind,Data.accsum(df2,config.targetCol)
         Data.log.debug(mlKind+" Test acc: :%.2f" % _acc[1])
+
+        _accsum=0 
+        def_result_summary = df2.groupby(config.xAxisCol, as_index=False).sum().reset_index()[[config.xAxisCol,config.targetCol,'Predict']]
+        if(def_result_summary.shape[0]>1):
+            _acc = mlKind,Data.accsum(def_result_summary,config.targetCol)
+            Data.log.debug(mlKind+" Test group by x-axis acc: :%.2f" % _acc[1])
+            print(mlKind+" Test group by x-axis acc: :%.2f" % _acc[1])
+
         def_result_summary = df2[[config.targetCol,'Predict']].sum()
         if(def_result_summary['QTY']!=0):
             totol_acc = (1- abs(def_result_summary['Predict'] -def_result_summary['QTY'])/def_result_summary['QTY'])*100
             print(mlKind+" Test Aggreation acc :%f ",totol_acc)
-            Data.log.debug(mlKind+" Test Aggreation acc :%f " % totol_acc)
-
-            
+            Data.log.debug(mlKind+" Test Aggreation acc :%f " % totol_acc)            
             dfraw=pd.read_csv(config.datafile) 
-            partsData = dfraw[dfraw['PART_NO']==config.partno]
-            qtymean = partsData[config.targetCol].mean()
 
 
-            totol_acc = (1- abs(qtymean -def_result_summary['QTY'])/def_result_summary['QTY'])*100
-            print(mlKind+" Test Mean (%f) acc :%f  ", (qtymean ,totol_acc))
-            Data.log.debug(mlKind+" Test Mean (%f)  acc :%f " % (qtymean ,totol_acc))
+
+            # partsData = dfraw[dfraw['PART_NO']==config.partno]
+            # qtymean = partsData[config.targetCol].mean()
+
+
+            # totol_acc = (1- abs(qtymean -def_result_summary['QTY'])/def_result_summary['QTY'])*100
+            # print(mlKind+" Test Mean (%f) acc :%f  ", (qtymean ,totol_acc))
+            # Data.log.debug(mlKind+" Test Mean (%f)  acc :%f " % (qtymean ,totol_acc))

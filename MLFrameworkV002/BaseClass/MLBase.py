@@ -167,6 +167,7 @@ class MLBase(metaclass=abc.ABCMeta):
 class MLConfig:
     def __init__(self):
         self._datafile = ""
+        
     @property
     def datafile(self):
         return self._datafile

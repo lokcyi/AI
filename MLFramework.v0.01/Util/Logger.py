@@ -3,7 +3,7 @@ import logging.handlers
 import pathlib
 class Logger(object):
     def __init__(self, name='logger', level=logging.DEBUG):
-       
+
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
         # while self.logger.hasHandlers():
@@ -43,7 +43,7 @@ class Logger(object):
         self.logger.error(msg)
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     log = Logger(name='test')
     log.debug('ML Base init..%s' % '測試')
     log.debug('ML Base init..%s' % '測試')

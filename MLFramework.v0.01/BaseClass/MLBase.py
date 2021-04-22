@@ -52,22 +52,7 @@ class MLBase(metaclass=abc.ABCMeta):
         self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.readData(self.config.datafile)
 
     def filterData(self):
-
-        # for c in self.config.InputDataCondition :
-        #     if c['operator'] == "=":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] == c['value']]
-        #     elif c['operator']  == "=!":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] != c['value']]
-        #     elif c['operator']  == "<=":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] <= c['value']]
-        #     elif c['operator']  == "<":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] < c['value']]
-        #     elif  c['operator']  == ">=":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] >=c['value']]
-        #     elif c['operator']  ==  ">":
-        #         self.dfInputData = self.dfInputData[self.dfInputData[c['column']] >c['value']]
         self.dfInputData = Data.filterDataframe(self.dfInputData,self.config.InputDataCondition)
-
         self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.readDataFrame(self.dfInputData)
 
     @abc.abstractmethod

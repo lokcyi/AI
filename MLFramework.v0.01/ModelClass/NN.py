@@ -1,5 +1,7 @@
 from BaseClass.MLModelBase import MLModelBase
 import tensorflow as tf
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 class NN(MLModelBase):
     def training(self,X,y):
@@ -35,7 +37,8 @@ class NN(MLModelBase):
         model.compile(loss='mean_absolute_error', optimizer=tf.keras.optimizers.Adam(lr=0.01) #, optimizer=tf.keras.optimizers.SGD(lr=0.2)
                                 , metrics = [ 'mae', 'mape'])
             #需要tunning 時開啟
-        model = self.tuningNN(model,X,y)
+        #model = self.tuningNN(model,X,y)
+        # model = self.tuningNN2(model,X,y)
             #======================================================================================
             #3.訓練 fit：以compile函數進行訓練，指定訓練的樣本資料(x, y)，並撥一部分資料作驗證，還有要訓練幾個週期、訓練資料的抽樣方式。
         train_history = model.fit(x=X, y=y,
@@ -105,3 +108,66 @@ class NN(MLModelBase):
 
         return clf.best_estimator_.model
 
+    # def tuningNN2(self, load_model, x, y):
+    #     # build_model = lambda: load_model
+    #     keras_pipeline = Pipeline([("scaler", StandardScaler()),
+    #                            ("clf", keras.wrappers.scikit_learn.KerasClassifier(
+    #                                build_fn=make_model))
+    #     ])
+
+    #     param_grid = {'clf__network_layers': [(32, 32), (64, 64), (128, 128, 128)],
+    #     'clf__batch_size': [64, 128, 256],
+    #     'clf__epochs': [5, 10, 15],
+    #     'clf__dropout_rate': [0.1],
+    #     # 'clf__optimizer': ['Nadam'],
+    #     # 'clf__activation': ['selu'],
+    #     # 'clf__k_initializer': ['lecun_normal'],
+    #     'clf__verbose': [0]
+    #     }
+
+    #     rs_keras = RandomizedSearchCV(keras_pipeline,
+    #                                 param_distributions=param_grid,
+    #                                 cv=5, refit=True,
+    #                                 verbose=0,
+    #                                 n_iter=50,
+    #                                 scoring="accuracy")
+
+    #     rs_keras.fit(np.array(x),
+    #                 np.array(y))
+
+    #     print('Best score obtained: {0}'.format(rs_keras.best_score_))
+    #     print('Parameters:')
+    #     for param, value in rs_keras.best_params_.items():
+    #         print('\t{}: {}'.format(param, value))
+
+    # def make_model(network_layers=[(32, 32)],
+    #             dropout_rate=0,
+    #             optimizer=tf.keras.optimizers.Adam,
+    #             activation='relu',
+    #             k_initializer='random_uniform',#'lecun_normal',
+    #             n_input=92,
+    #             n_class=1):
+
+    #     model = keras.models.Sequential()
+
+    #     for index, layers in enumerate(network_layers):
+    #         if not index:
+    #             model.add(keras.layers.Dense(layers,
+    #                                         input_dim=n_input,
+    #                                         activation=activation,
+    #                                         kernel_initializer=k_initializer))
+    #         else:
+    #             model.add(keras.layers.Dense(layers,
+    #                                         kernel_initializer=k_initializer,
+    #                                         activation=activation))
+    #         if dropout_rate and index:
+    #             model.add(keras.layers.AlphaDropout(dropout_rate))
+
+    #     model.add(keras.layers.Dense(n_class,
+    #                             activation="relu"))
+    #                                # activation="sigmoid"))
+
+    #     model.compile(loss='mean_absolute_error',#loss='binary_crossentropy',
+    #                 optimizer=optimizer,
+    #                 metrics=['accuracy'])
+    #     return model

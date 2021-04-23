@@ -4,6 +4,11 @@ from BaseClass.MLBase import MLBase ,fillNaType
 class MLSample(MLBase):
     def __init__(self):
         super(MLSample, self).__init__()
+        '''
+        剛剛跟文彥討論了一下，Product move ratio, Inline Cycle time 的 model 先以 Product + Toolg 為主先進行
+        產品可以考慮用 C11MD01A, L80GA03A, D25AS01A
+        這分別是三種產品，數量在 8000 以上
+        '''
         self.config.datafile  = './data/prodkpi/prodkpi_POC_0411_PK_DUVKrF.csv'
         self.config.targetCol = 'INLINE_CT'
         self.config.xAxisCol = "Key"

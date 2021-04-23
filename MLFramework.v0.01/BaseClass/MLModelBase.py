@@ -5,8 +5,8 @@ import joblib as joblib
 import os
 import tensorflow as tf
 from sklearn import metrics
-
 from Util.Logger import Logger
+
 class MLModelBase(metaclass=abc.ABCMeta):
     def __init__(self):
         self.log = Logger(name='MLFramework')

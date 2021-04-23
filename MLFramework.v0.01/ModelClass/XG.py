@@ -31,5 +31,5 @@ class XG(MLModelBase):
         # bst_model = optimized_GBM.estimator
         # print(bst_model)
         bst_model =model
-        bst_model.fit(X_train, y_train)
+        bst_model.fit(X, y)
         return bst_model

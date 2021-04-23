@@ -130,7 +130,7 @@ class Data:
         df2.to_csv('./Report/'+config.modelFileKey+'_'+mlKind+'.csv',index=False)
         print(mlKind+'  '+config.modelFileKey+" Test acc%:",mlKind,Data.accsum(df2,config.targetCol))
         _acc = mlKind,Data.accsum(df2,config.targetCol)
-        Data.log.debug(mlKind+" Test acc: :%.2f" % _acc[1])
+        Data.log.debug(mlKind+'  '+config.modelFileKey+" Test acc: :%.2f" % _acc[1])
 
         _accsum=0
         def_result_summary = df2.groupby(config.xAxisCol, as_index=False).sum().reset_index()[[config.xAxisCol,config.targetCol,'Predict']]

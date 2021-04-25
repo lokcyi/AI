@@ -27,11 +27,11 @@ class MLSample(MLBase):
         self.config.includeColumns = []
         self.config.excludeColumns =['PM','TS','ENG','NST']
         # self.config.fillNaType=fillNaType.MEAN  ##填補遺漏值##
-        self.config.modelFileKey="Parts_Tools_30_85-ECT0010"
+        self.config.modelFileKey="Parts_LSTM"
 
         self.config.forceRetrain=True
 
-        self.config.runModel = ['LSTM']  #['DNN','DNN1k','LRModel','NN','RFModel','XG']
+        self.config.runModel = ['LSTMModel']  #['DNN','DNN1k','LRModel','NN','RFModel','XG']
         self.config.LSTM_look_back = 2
         #self.scaler
         #self.scalerColumnList=[]
@@ -57,7 +57,7 @@ class MLSample(MLBase):
     ##準備訓練資料##
     def getTrainingData(self):
 
-        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202103']
+        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202101']
         training_set = train.iloc[:, 1:2].values  # 72
          #Featuring Scaling(LSTM 是對 target 做 scaling)
         from sklearn.preprocessing import MinMaxScaler
@@ -76,32 +76,43 @@ class MLSample(MLBase):
         # x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))  # (74,1)==>  筆數 , (look_back,1) (74, 1, 1)
         # Append suffix / prefix to strings in list
 
-        pre_res = ['X' + sub.str() for sub in range(1, x_train.shape[1]+1)]
+        # pre_res = ['X' + sub.str() for sub in range(1, x_train.shape[1]+1)]
+        pre_res = ['X'+str(i+1) for i in range(x_train.shape[1])]
+        df_train = pd.DataFrame(x_train, columns = pre_res)
+        df_train['y'] = y_train
 
-        return pd.DataFrame(x_train, columns = [self.config.targetCol])
+        return df_train
 
     ##準備測試資料##
     def getTestingDataRaw(self):
+        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202101']
+        test  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']>'202101']
+        real_test_price = test['QTY'].iloc[:].values
 
-        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202103']
-        scaled_training_data = train.iloc[:, 1:2].values # 72
-        #Creating Data Structure with 60 Time Stamps and 1 output
-        x_train = []
-        y_train = []
+        # Getting the predicted stock price of 2017
+        dataset_total = pd.concat((train['QTY'], test['QTY']), axis = 0)
+        inputs = dataset_total[len(dataset_total) - len(test) - self.config.LSTM_look_back:].values
+        inputs = inputs.reshape(-1,1)
+        from sklearn.preprocessing import MinMaxScaler
+        sc = MinMaxScaler(feature_range = (0,1))
+        training_set = train.iloc[:, 1:2].values  # 72
+        sc.fit_transform(training_set)
+        inputs = sc.transform(inputs)
+        X_test = []
+        for i in range(self.config.LSTM_look_back, inputs.shape[0]):
+            X_test.append(inputs[i-self.config.LSTM_look_back:i, 0])
+        X_test = np.array(X_test)
+        # X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+        pre_res = ['X'+str(i+1) for i in range(X_test.shape[1])]
+        
+        df_test = pd.DataFrame(X_test, columns = pre_res)
+        
+        df_test['y']=test['QTY']
 
-        for i in range(self.config.LSTM.look_back,train.shape[0]):
-            x_train.append(scaled_training_data[i-look_back:i, 0])
-            y_train.append(scaled_training_data[i, 0])
-        x_train, y_train = np.array(x_train), np.array(y_train)
-
-        #Reshaping
-        x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))  #  筆數 , (look_back,1)
-        df = pd.DataFrame(x_train, columns = ['X','Column_B','Column_C'])
-
-        return df
+        return df_test
 
     def getTestingData(self):
-        return self.dfInputData[(self.dfInputData['MFG_MONTH']>='202101')&(self.dfInputData['MFG_MONTH']<='202103')]
+        return self.getTestingDataRaw()
 
 if __name__ == "__main__":
     sample=MLSample()

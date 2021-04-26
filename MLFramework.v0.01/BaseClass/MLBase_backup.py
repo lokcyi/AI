@@ -20,13 +20,6 @@ class fillNaType(Enum):
     DROPNA = 'dropna'
     ZERRO = 'zero'
     MODE = 'mode'
-class scalerKind(Enum):
-    STANDARD = 'standard'
-    MINMAX = 'minmax'
-    ROBUST = 'robust'
-    MAXABS = 'maxabs'
-    NORMAL = 'normal'
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -68,17 +61,32 @@ class MLBase(metaclass=abc.ABCMeta):
 
     def filterColumns(self):
         self.dfInputData=Data.filterColumns(self.dfInputData,self.config)
-        self.dfInputData, self.strColumnlist, self.numbericColumnlist, self.nullColumnlist = Data.analyzeData(self.dfInputData)
-        self.dfTraining = Data.filterColumns(self.dfTraining, self.config)
-        self.dfTesting = Data.filterColumns(self.dfTesting, self.config)
+        self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.analyzeData(self.dfInputData)
 
-    # def scalerData(self):
-    #     self.dfInputData=Data.scalerData(self.dfInputData,'MinMaxScaler',self.numbericColumnlist,self.config)
-    #     print(self.dfInputData)
+    def fillnull(self):
+        if hasattr(self.config, 'fillNaType'):
+            if(self.config.fillNaType.value=='mean'):
+                self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
+            elif(self.fillNaType.value=='mode'):
+                self.dfInputData = self.dfInputData.fillna(self.dfInputData.mode())
+            elif(self.fillNaType.value=='bfill'):
+                self.dfInputData = self.dfInputData.fillna(method='bfill').fillna(self.dfInputData.median())
+            elif(self.fillNaType.value=='ffill'):
+                self.dfInputData = self.dfInputData.fillna(method='ffill').fillna(self.dfInputData.median())
+            elif(self.fillNaType.value=='dropna'):
+                self.dfInputData = self.dfInputData.dropna()
+            elif(self.fillNaType.value=='zero'):
+                self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0)
+        else:
+            self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
 
-    # @abc.abstractmethod
-    # def featureTransform(self):
-    #     return NotImplemented
+    def scalerData(self):
+        self.dfInputData=Data.scalerData(self.dfInputData,'MinMaxScaler',self.numbericColumnlist,self.config)
+        print(self.dfInputData)
+
+    @abc.abstractmethod
+    def featureTransform(self):
+        return NotImplemented
 
     @abc.abstractmethod
     def getTrainingData(self):
@@ -111,69 +119,53 @@ class MLBase(metaclass=abc.ABCMeta):
 
     def run(self):
         print(bcolors.HEADER + "===" + MLBase.ver + "===================================" + bcolors.ENDC)
-        print(bcolors.WARNING + "===[input]資料合併===================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===資料合併===================" + bcolors.ENDC)
         self.log.debug("===Data Merge===================%s" % self.__class__.__name__)
         if hasattr(self.config, 'dataFiles'):
             self.getMergeDataFile()
-        print(bcolors.WARNING + "===[input]讀取資料===================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===讀取資料===================" + bcolors.ENDC)
         self.log.debug("===Fetch Data===================%s" % self.__class__.__name__)
         self.getInputData()
-        print(bcolors.WARNING + "===[input]資料過濾===================" + bcolors.ENDC)
+
+        print(bcolors.WARNING + "===資料過濾===================" + bcolors.ENDC)
         self.log.debug("===Filter Input Data===================%s" % self.__class__.__name__)
         if hasattr(self.config, 'InputDataCondition'):
             self.filterData()
-        print(bcolors.WARNING + "===[input]資料轉換===================" + bcolors.ENDC)
+
+        print(bcolors.WARNING + "===資料轉換===================" + bcolors.ENDC)
         self.log.debug("===Data Transform===================%s" % self.__class__.__name__)
         self.dataTransform()
 
-
-        print(bcolors.WARNING + "===[input]篩選訓練集 & 測試集================" + bcolors.ENDC)
-        self.dfTraining = Data.filterDataframe(self.dfInputData, self.config.TrainCondition)
-        self.dfTesting = Data.filterDataframe(self.dfInputData, self.config.TrainCondition)
-
-        print(bcolors.WARNING + "===[input]過濾資料===================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===過濾資料===================" + bcolors.ENDC)
         self.log.debug("===Data Filter===================%s" % self.__class__.__name__)
         self.filterColumns()
 
-        '''
-        資料預處理
-        '''
-
         print(bcolors.WARNING + "===填補遺漏值==================" + bcolors.ENDC)
-        self.log.debug("===填補遺漏值==================%s" % self.__class__.__name__)
-        # self.fillnull()
-        self.dfTraining = Data.fillnull(self.dfTraining, self.nullColumnlist, self.config.fillNaType.value)
-        self.dfTesting = Data.fillnull(self.dfTesting, self.nullColumnlist, self.config.fillNaType)
-        self.dfOriTesting = self.dfTesting.copy(deep=False)
-
+        self.log.debug("===fill None==================%s" % self.__class__.__name__)
+        self.fillnull()
+        self.dfInputData.info()
         print(bcolors.WARNING + "===特徵縮放===================" + bcolors.ENDC)
-        self.log.debug("===特徵縮放===================%s" % self.__class__.__name__)
-        # self.scalerData()
-        self.dfTraining = Data.scalerData(self.dfTraining, self.numbericColumnlist,self.config, isTrain=True)
-        self.dfTesting = Data.scalerData(self.dfTesting, self.numbericColumnlist,self.config, isTrain=False)
-
+        self.log.debug("===scale===================%s" % self.__class__.__name__)
+        self.scalerData()
         print(bcolors.WARNING + "===特徵轉換===================" + bcolors.ENDC)
-        self.log.debug("===特徵轉換===================%s" % self.__class__.__name__)
-        # self.featureTransform()
-        # self.dfInputDataRaw=  self.dfTraining.copy(deep=False)
-        self.dfTraining = Data.featureTransform(self.dfTraining, self.config,True)
-        self.dfTesting = Data.featureTransform(self.dfTesting,self.config,False)
-
-        # self.dfTraining = self.getTrainingData()
+        self.log.debug("===feature Transform===================%s" % self.__class__.__name__)
+        self.featureTransform()
+        self.dfInputData.info()
+        print(bcolors.WARNING + "===準備訓練資料================" + bcolors.ENDC)
+        self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
+        self.dfTraining = self.getTrainingData()
         # if hasattr(self.config, 'TrainCondition') and hasattr(self.config, 'TestCondition'):
         #     cols = [ sub['column'] for sub in self.config.TrainCondition+self.config.TestCondition ]
         #     cols = [k for k, g in groupby(sorted(cols))]
         #     self.dfTraining= self.dfTraining.drop(columns=cols)
-        print(bcolors.WARNING + "===Ready for Training===================" + bcolors.ENDC)
-        self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
+
         self.dfTraining= self.dfTraining.drop([x for x in [self.config.xAxisCol] if x in self.dfTraining.columns], axis=1)
         self.X = np.asarray(self.dfTraining.drop(self.config.targetCol, axis=1))
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
 
-
-        print(bcolors.WARNING + "===Ready for Testing===================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===準備測試資料================" + bcolors.ENDC)
         self.log.debug("===Ready for Testing===================%s" % self.__class__.__name__)
-        # self.dfOriTesting = self.getTestingData()
+        self.dfOriTesting = self.getTestingData()
         self.dfTesting =  self.dfOriTesting.copy(deep=False)
         self.dfTesting = self.dfTesting.drop([x for x in [self.config.xAxisCol] if x in self.dfTesting.columns], axis=1)
         self.XTest = np.asarray(self.dfTesting.drop(self.config.targetCol, axis=1))

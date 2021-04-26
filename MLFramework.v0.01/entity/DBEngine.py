@@ -4,15 +4,15 @@ import sys
 import os
 import Util.ConfigManager as cf
 class DBEngine:
-    def __init__(self,db_name):
+    def __init__(self,db_name,config_path='.\config'):
+        self.dbName = db_name
+        self.config_path = config_path
         self.dbName = db_name
         self.ServerPrifix = 'Server'
         self.DBNamePrifix = 'Database'
         self.UserIDPrifix = 'uid'
         self.PwdPrifix = 'pwd'
-
         self.config_dic = {}
-        self.config_path = '.\config'
     def Query(self,sqlstring,params=None):
         conn = self.conn()
         cursor = conn.cursor(as_dict = True)

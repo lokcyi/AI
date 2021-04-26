@@ -67,19 +67,19 @@ class MLSample(MLBase):
         self.dfInputData = self.dfInputData[self.dfInputData['PART_NO']==self.config.partno]
 
     ##填補遺漏值##
-    def fillnull(self):
-        if(self.config.fillNaType.value=='mean'):
-            self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
-        elif(self.fillNaType.value=='mode'):
-            self.dfInputData = self.dfInputData.fillna(self.dfInputData.mode())
-        elif(self.fillNaType.value=='bfill'):
-            self.dfInputData = self.dfInputData.fillna(method='bfill').fillna(self.dfInputData.median())
-        elif(self.fillNaType.value=='ffill'):
-            self.dfInputData = self.dfInputData.fillna(method='ffill').fillna(self.dfInputData.median())
-        elif(self.fillNaType.value=='dropna'):
-            self.dfInputData = self.dfInputData.dropna()
-        elif(self.fillNaType.value=='zero'):
-            self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0)
+    # def fillnull(self):
+    #     if(self.config.fillNaType.value=='mean'):
+    #         self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
+    #     elif(self.fillNaType.value=='mode'):
+    #         self.dfInputData = self.dfInputData.fillna(self.dfInputData.mode())
+    #     elif(self.fillNaType.value=='bfill'):
+    #         self.dfInputData = self.dfInputData.fillna(method='bfill').fillna(self.dfInputData.median())
+    #     elif(self.fillNaType.value=='ffill'):
+    #         self.dfInputData = self.dfInputData.fillna(method='ffill').fillna(self.dfInputData.median())
+    #     elif(self.fillNaType.value=='dropna'):
+    #         self.dfInputData = self.dfInputData.dropna()
+    #     elif(self.fillNaType.value=='zero'):
+    #         self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0)
 
     ##特徵轉換##
     def featureTransform(self):

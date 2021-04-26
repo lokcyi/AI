@@ -22,7 +22,7 @@ class MLSample(MLBase):
         ]
 
         self.config.datafile = "./data/Parts_EQP_Output_ByMonth_20210407_van.csv"
-        self.config.targetCol = "y"
+        self.config.targetCol = 'QTY'
         self.config.xAxisCol = "MFG_MONTH"
         self.config.includeColumns = []
         self.config.excludeColumns =['PM','TS','ENG','NST']
@@ -57,7 +57,7 @@ class MLSample(MLBase):
     ##準備訓練資料##
     def getTrainingData(self):
 
-        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202101']
+        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<'202101']
         training_set = train.iloc[:, 1:2].values  # 72
          #Featuring Scaling(LSTM 是對 target 做 scaling)
         from sklearn.preprocessing import MinMaxScaler
@@ -79,18 +79,17 @@ class MLSample(MLBase):
         # pre_res = ['X' + sub.str() for sub in range(1, x_train.shape[1]+1)]
         pre_res = ['X'+str(i+1) for i in range(x_train.shape[1])]
         df_train = pd.DataFrame(x_train, columns = pre_res)
-        df_train['y'] = y_train
+        df_train[self.config.targetCol] = y_train
 
         return df_train
 
     ##準備測試資料##
     def getTestingDataRaw(self):
-        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<='202101']
-        test  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']>'202101']
-        real_test_price = test['QTY'].iloc[:].values
+        train  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']<'202101']
+        test  = self.dfInputDataRaw[self.dfInputDataRaw['MFG_MONTH']>='202101']
+        real_test_TargetValue = test[self.config.targetCol].iloc[:].values
 
-        # Getting the predicted stock price of 2017
-        dataset_total = pd.concat((train['QTY'], test['QTY']), axis = 0)
+        dataset_total = pd.concat((train[self.config.targetCol], test[self.config.targetCol]), axis = 0)
         inputs = dataset_total[len(dataset_total) - len(test) - self.config.LSTM_look_back:].values
         inputs = inputs.reshape(-1,1)
         from sklearn.preprocessing import MinMaxScaler
@@ -104,11 +103,11 @@ class MLSample(MLBase):
         X_test = np.array(X_test)
         # X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
         pre_res = ['X'+str(i+1) for i in range(X_test.shape[1])]
-        
-        df_test = pd.DataFrame(X_test, columns = pre_res)
-        
-        df_test['y']=test['QTY']
 
+        df_test = pd.DataFrame(X_test, columns = pre_res)
+
+        df_test[self.config.targetCol]=real_test_TargetValue
+        df_test[self.config.xAxisCol] = test[self.config.xAxisCol].dt.strftime('%Y%m').values
         return df_test
 
     def getTestingData(self):

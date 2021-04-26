@@ -143,7 +143,7 @@ class MLBase(metaclass=abc.ABCMeta):
         self.log.debug("===填補遺漏值==================%s" % self.__class__.__name__)
         # self.fillnull()
         self.dfTraining = Data.fillnull(self.dfTraining, self.nullColumnlist, self.config.fillNaType.value)
-        self.dfTesting = Data.fillnull(self.dfTesting, self.nullColumnlist, self.config.fillNaType)
+        self.dfTesting = Data.fillnull(self.dfTesting, self.nullColumnlist, self.config.fillNaType.value)
         self.dfOriTesting = self.dfTesting.copy(deep=False)
 
         print(bcolors.WARNING + "===特徵縮放===================" + bcolors.ENDC)
@@ -156,8 +156,8 @@ class MLBase(metaclass=abc.ABCMeta):
         self.log.debug("===特徵轉換===================%s" % self.__class__.__name__)
         # self.featureTransform()
         # self.dfInputDataRaw=  self.dfTraining.copy(deep=False)
-        self.dfTraining = Data.featureTransform(self.dfTraining, self.config,True)
-        self.dfTesting = Data.featureTransform(self.dfTesting,self.config,False)
+        self.dfTraining_eh = Data.featureTransform(self.dfTraining, self.config,True)
+        self.dfTesting_eh = Data.featureTransform(self.dfTesting,self.config,False)
 
         # self.dfTraining = self.getTrainingData()
         # if hasattr(self.config, 'TrainCondition') and hasattr(self.config, 'TestCondition'):
@@ -166,20 +166,21 @@ class MLBase(metaclass=abc.ABCMeta):
         #     self.dfTraining= self.dfTraining.drop(columns=cols)
         print(bcolors.WARNING + "===Ready for Training===================" + bcolors.ENDC)
         self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
-        self.dfTraining= self.dfTraining.drop([x for x in [self.config.xAxisCol] if x in self.dfTraining.columns], axis=1)
-        self.X = np.asarray(self.dfTraining.drop(self.config.targetCol, axis=1))
+        self.dfTraining_eh= self.dfTraining_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTraining_eh.columns], axis=1)
+        self.X = np.asarray(self.dfTraining_eh).astype('float32')
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
 
 
         print(bcolors.WARNING + "===Ready for Testing===================" + bcolors.ENDC)
         self.log.debug("===Ready for Testing===================%s" % self.__class__.__name__)
         # self.dfOriTesting = self.getTestingData()
-        self.dfTesting =  self.dfOriTesting.copy(deep=False)
-        self.dfTesting = self.dfTesting.drop([x for x in [self.config.xAxisCol] if x in self.dfTesting.columns], axis=1)
-        self.XTest = np.asarray(self.dfTesting.drop(self.config.targetCol, axis=1))
+        # self.dfTesting =  self.dfOriTesting.copy(deep=False)
+        self.dfTesting_eh = self.dfTesting_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTesting_eh.columns], axis=1)
+        self.XTest = np.asarray(self.dfTesting_eh).astype('float32')
 
         print(bcolors.OKBLUE + "===訓練模型====================" + bcolors.ENDC)
         self.log.debug("===Model Training===================%s" % self.__class__.__name__)
+        # self.config._featureList=list(self.dfTraining_eh.drop(self.config.targetCol, axis=1).columns)
         self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)
         self.model={}
         self.mlKind={}

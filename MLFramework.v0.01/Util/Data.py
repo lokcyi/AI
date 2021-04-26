@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler #平均&變異數標準化 平�
 from sklearn.preprocessing import MinMaxScaler #最小最大值標準化[0,1]
 from sklearn.preprocessing import RobustScaler #中位數和四分位數標準化
 from sklearn.preprocessing import MaxAbsScaler #絕對值最大標準化
+from sklearn.preprocessing import Normalizer #絕對值最大標準化
 from Util.Logger import Logger
 
 class Data:
@@ -121,12 +122,12 @@ class Data:
                     scaler = Normalizer()
                 else:
                     scaler = MinMaxScaler()
-                scaler.fit(df[numbericColumnlist])
-                df[numbericColumnlist] = scaler.transform(df[numbericColumnlist])
+                scaler.fit(df[scalerColumnlist])
+                df[scalerColumnlist] = scaler.transform(df[scalerColumnlist])
                 dump(scaler, open('model/scaler_{}.pkl'.format(config.modelFileKey), 'wb'))
             else:
                 scaler = load(open('model/scaler_{}.pkl'.format(config.modelFileKey), 'rb'))
-                df[numbericColumnlist] = scaler.transform(df[numbericColumnlist])
+                df[scalerColumnlist] = scaler.transform(df[scalerColumnlist])
         return df
     @staticmethod
     def featureTransform(df,config, isTrain=True):

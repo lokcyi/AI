@@ -21,7 +21,7 @@ class MLSample(MLBase):
         self.config.modelFileKey="INLineCT"
         self.config.forceRetrain=True
 
-        self.config.runModel = ['LRModel']
+        self.config.runModel = ['LRModel','NN','XG','CAT']
         self.config.fillNaType=fillNaType.MEAN
         self.config.final_date ='20210105'
         #self.config.runModel=['LRModel','RFModel','NN']

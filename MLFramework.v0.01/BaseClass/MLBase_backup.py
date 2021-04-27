@@ -20,6 +20,13 @@ class fillNaType(Enum):
     DROPNA = 'dropna'
     ZERRO = 'zero'
     MODE = 'mode'
+class scalerKind(Enum):
+    STANDARD = 'standard'
+    MINMAX = 'minmax'
+    ROBUST = 'robust'
+    MAXABS = 'maxabs'
+    NORMAL = 'normal'
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'

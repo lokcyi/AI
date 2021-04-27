@@ -24,7 +24,7 @@ class MLSample(MLBase):
         self.config.xAxisCol = "MFG_MONTH"
         self.config.includeColumns = []
         self.config.excludeColumns =['PM','TS','ENG','NST' ,'TOOL_ID','BACKUP_BY_RATE','SAMPLING_RATE']   #,'CHANGE_RECIPE'
-
+        self.config.encoderColumns =['PART_NO','EQP_NO'] #vanessa
         self.config.fillNaType=fillNaType.MEAN
         self.config.modelFileKey="Parts_Tools_30Quater_85-EKA0190"
         self.config.forceRetrain=False
@@ -101,9 +101,8 @@ class MLSample(MLBase):
 
 if __name__ == "__main__":
     sample=MLSample()
-    #['85-ECT0010','85-EKA0190','85-EKA0270','85-EMA0130','85-EMA0900','85-EMA0910','85-EMA0920',
-    # partList =['86-DIA0120'],'87-WPT1070']
-    partList =['86-DIA0120']
+
+    partList =['85-ECT0010','85-EKA0190','85-EKA0270' ,'85-EMA0900','85-EMA0910','85-EMA0920', '86-DIA0120','87-WPT1070','85-EMA0130']
     for p in partList:
         sample.config.modelFileKey="Parts_Tools_30Month_Org_{}".format(p)
         sample.config.partno=p

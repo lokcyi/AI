@@ -24,7 +24,7 @@ class MLSample(MLBase):
         self.config.xAxisCol = "MFG_MONTH"
         self.config.includeColumns = []
         self.config.excludeColumns =['PM','TS','ENG','NST' ,'TOOL_ID','BACKUP_BY_RATE','SAMPLING_RATE']   #,'CHANGE_RECIPE'
-
+        self.config.encoderColumns =['PART_NO','EQP_NO'] #vanessa
         self.config.fillNaType=fillNaType.MEAN
         self.config.modelFileKey="Parts_Tools_30Quater_85-EKA0190"
         self.config.forceRetrain=False

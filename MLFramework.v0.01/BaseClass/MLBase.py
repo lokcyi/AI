@@ -9,10 +9,13 @@ import webbrowser
 import os
 import logging
 from enum import Enum
+
 from Util.ModelAnalysis import ModelAnalysis
 from Util.Data import Data
 from Util.Logger import Logger
 from ModelClass import *
+import entity.DBEngine as db_engine
+
 class fillNaType(Enum):
     MEAN = 'mean'
     BFILL = 'bfill'
@@ -51,6 +54,27 @@ class MLBase(metaclass=abc.ABCMeta):
     def config(self, value):
         self._config = value
 
+    def getDataFromDB(self):
+        """
+        def 撈取DB
+        """
+        dataSource=self.config.dataSource[0]
+        db_name = dataSource['DB']
+        query = ['select * from %s ' % dataSource['TABLE'] ]
+
+        if 'CONDITION' in dataSource.keys():
+            if len(dataSource['CONDITION']) > 1:
+                for i in range(len(dataSource['CONDITION'])):
+                    if i==0:
+                        query.append('where {} {}  \'{}\' '.format(dataSource['CONDITION'][i]['column'] ,dataSource['CONDITION'][i]['operator'] ,dataSource['CONDITION'][i]['value']))
+                    else:
+                        query.append(' AND {} {} \'{}\' '.format(dataSource['CONDITION'][i]['column'] , dataSource['CONDITION'][i]['operator'] , dataSource['CONDITION'][i]['value']))
+        conn = db_engine.DBEngine(db_name)
+        self.dfInputData = conn.Query(' '.join(query))
+
+        self.dfInputData.to_csv(self.config.datafile, index=False)
+
+
     def getMergeDataFile(self):
         self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.merge(self.config.dataFiles)
         self.dfInputData.to_csv(self.config.datafile, index=False)
@@ -60,7 +84,8 @@ class MLBase(metaclass=abc.ABCMeta):
 
     def filterData(self):
         self.dfInputData = Data.filterDataframe(self.dfInputData,self.config.InputDataCondition)
-        self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.readDataFrame(self.dfInputData)
+        # self.dfInputData,self.strColumnlist,self.numbericColumnlist,self.nullColumnlist=Data.readDataFrame(self.dfInputData)
+
 
     @abc.abstractmethod
     def dataTransform(self):
@@ -110,11 +135,28 @@ class MLBase(metaclass=abc.ABCMeta):
         webbrowser.open(url)
 
     def run(self):
+        '''
+        讀取DB 到local
+        '''
+        print(bcolors.HEADER + "===" + MLBase.ver + "===================================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===[input]資料合併===================" + bcolors.ENDC)
+        self.log.debug("===Data Merge===================%s" % self.__class__.__name__)
+        if hasattr(self.config, 'dataSource'):
+            self.getDataFromDB()
+
+        '''
+        讀取資料合併
+        '''
         print(bcolors.HEADER + "===" + MLBase.ver + "===================================" + bcolors.ENDC)
         print(bcolors.WARNING + "===[input]資料合併===================" + bcolors.ENDC)
         self.log.debug("===Data Merge===================%s" % self.__class__.__name__)
         if hasattr(self.config, 'dataFiles'):
             self.getMergeDataFile()
+
+        '''
+        讀取資料csv
+        '''
+
         print(bcolors.WARNING + "===[input]讀取資料===================" + bcolors.ENDC)
         self.log.debug("===Fetch Data===================%s" % self.__class__.__name__)
         self.getInputData()
@@ -122,18 +164,30 @@ class MLBase(metaclass=abc.ABCMeta):
         self.log.debug("===Filter Input Data===================%s" % self.__class__.__name__)
         if hasattr(self.config, 'InputDataCondition'):
             self.filterData()
+
+        if self.dfInputData.shape[0] == 0 :
+            print(bcolors.WARNING + "資料筆數 : 0" + bcolors.ENDC)
+            self.log.debug("資料筆數 : 0   Rows {}, Columns {}".format(self.dfInputData.shape[0],self.dfInputData.shape[1]))
+            return
         print(bcolors.WARNING + "===[input]資料轉換===================" + bcolors.ENDC)
         self.log.debug("===Data Transform===================%s" % self.__class__.__name__)
         self.dataTransform()
 
+        '''
+        訓練集 & 測試集
+        '''
 
         print(bcolors.WARNING + "===[input]篩選訓練集 & 測試集================" + bcolors.ENDC)
-        self.dfTraining = Data.filterDataframe(self.dfInputData, self.config.TrainCondition)
-        self.dfTesting = Data.filterDataframe(self.dfInputData, self.config.TrainCondition)
+        if hasattr(self.config, 'TrainCondition') & hasattr(self.config, 'TestCondition'):
+            self.dfTraining = Data.filterDataframe(self.dfInputData, self.config.TrainCondition)
+            self.dfTesting = Data.filterDataframe(self.dfInputData, self.config.TestCondition)
+        else:
+            self.dfTraining = self.getTrainingData()
+            self.dfTesting = self.getTestingData()
 
         print(bcolors.WARNING + "===[input]過濾資料===================" + bcolors.ENDC)
         self.log.debug("===Data Filter===================%s" % self.__class__.__name__)
-        self.filterColumns()
+        self.filterColumns() # 拆分訓練集 測是集
 
         '''
         資料預處理
@@ -149,25 +203,29 @@ class MLBase(metaclass=abc.ABCMeta):
         print(bcolors.WARNING + "===特徵縮放===================" + bcolors.ENDC)
         self.log.debug("===特徵縮放===================%s" % self.__class__.__name__)
         # self.scalerData()
-        self.dfTraining = Data.scalerData(self.dfTraining, self.numbericColumnlist,self.config, isTrain=True)
-        self.dfTesting = Data.scalerData(self.dfTesting, self.numbericColumnlist,self.config, isTrain=False)
+        if not hasattr(self.config, 'scalerKind'):
+            self.config.scalerKind =scalerKind.MINMAX
+        self.dfTraining = Data.scalerData(self.dfTraining, self.config.scalerKind.value,self.numbericColumnlist,self.config, isTrain=True)
+        self.dfTesting = Data.scalerData(self.dfTesting, self.config.scalerKind.value,self.numbericColumnlist,self.config, isTrain=False)
 
         print(bcolors.WARNING + "===特徵轉換===================" + bcolors.ENDC)
         self.log.debug("===特徵轉換===================%s" % self.__class__.__name__)
         # self.featureTransform()
         # self.dfInputDataRaw=  self.dfTraining.copy(deep=False)
-        self.dfTraining_eh = Data.featureTransform(self.dfTraining, self.config,True)
-        self.dfTesting_eh = Data.featureTransform(self.dfTesting,self.config,False)
+        self.dfTraining_eh = Data.featureTransform(self.dfTraining, self.config,True)  # exclude target_cols xAxisCol
+        self.dfTesting_eh = Data.featureTransform(self.dfTesting,self.config,False)  # exclude target_cols xAxisCol
 
         # self.dfTraining = self.getTrainingData()
         # if hasattr(self.config, 'TrainCondition') and hasattr(self.config, 'TestCondition'):
         #     cols = [ sub['column'] for sub in self.config.TrainCondition+self.config.TestCondition ]
         #     cols = [k for k, g in groupby(sorted(cols))]
         #     self.dfTraining= self.dfTraining.drop(columns=cols)
+
+        self.dfInputData = self.dfTraining_eh
         print(bcolors.WARNING + "===Ready for Training===================" + bcolors.ENDC)
         self.log.debug("===Ready for Training===================%s" % self.__class__.__name__)
-        self.dfTraining_eh= self.dfTraining_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTraining_eh.columns], axis=1)
-        self.X = np.asarray(self.dfTraining_eh).astype('float32')
+        # self.dfTraining_eh= self.dfTraining_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTraining_eh.columns], axis=1)
+        self.X = np.asarray(self.dfTraining_eh)
         self.y = np.asarray(self.dfTraining[self.config.targetCol])
 
 
@@ -175,13 +233,15 @@ class MLBase(metaclass=abc.ABCMeta):
         self.log.debug("===Ready for Testing===================%s" % self.__class__.__name__)
         # self.dfOriTesting = self.getTestingData()
         # self.dfTesting =  self.dfOriTesting.copy(deep=False)
-        self.dfTesting_eh = self.dfTesting_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTesting_eh.columns], axis=1)
-        self.XTest = np.asarray(self.dfTesting_eh).astype('float32')
-
+        # self.dfTesting_eh = self.dfTesting_eh.drop([x for x in [self.config.xAxisCol] if x in self.dfTesting_eh.columns], axis=1)
+        self.XTest = np.asarray(self.dfTesting_eh)
+        '''
+        模型訓練
+        '''
         print(bcolors.OKBLUE + "===訓練模型====================" + bcolors.ENDC)
         self.log.debug("===Model Training===================%s" % self.__class__.__name__)
-        # self.config._featureList=list(self.dfTraining_eh.drop(self.config.targetCol, axis=1).columns)
-        self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)
+        self.config._featureList=list(self.dfTraining_eh.columns)
+        #self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)
         self.model={}
         self.mlKind={}
         self.mFeatureImportances={}
@@ -195,6 +255,9 @@ class MLBase(metaclass=abc.ABCMeta):
         print(bcolors.OKBLUE + "===測試模型====================" + bcolors.ENDC)
         self.log.debug("===Model Testing===================%s" % self.__class__.__name__)
 
+        '''
+        模型測試
+        '''
         plt.style.use('ggplot')
         plt.figure(figsize=(20,6*len(self.config.runModel)),dpi=60)
         for i in range(len(self.config.runModel)):
@@ -206,6 +269,9 @@ class MLBase(metaclass=abc.ABCMeta):
 
         plt.tight_layout()
         plt.savefig('./Report/{0}_plot.svg'.format(self.config.modelFileKey))
+        '''
+        產生報表
+        '''
         print(bcolors.OKBLUE + "===產生報表====================" + bcolors.ENDC)
         self.log.debug("===Create Report===================%s" % self.__class__.__name__)
         self.genHTMLReport()

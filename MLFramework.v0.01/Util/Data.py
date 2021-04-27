@@ -16,7 +16,7 @@ class Data:
     log = Logger(name='MLFramework')
     @staticmethod
     def readData(inputfile):
-        Data.log.debug('readData %s' % inputfile)
+        Data.log.debug('readData ==> %s' % inputfile)
         df = pd.read_csv(inputfile)
         df=df.dropna(axis=1,how='all')
         df.info()
@@ -51,6 +51,7 @@ class Data:
         return df_merge
     @staticmethod
     def analyzeData(df):
+        df.isnull().sum()
         print('非數值欄位：')
         strColumnlist=df.select_dtypes(exclude=['int64','float64']).columns.tolist()
         print(strColumnlist)
@@ -60,6 +61,11 @@ class Data:
         print('包含ＮＵＬＬ的欄位：')
         nullColumnlist=df.columns[df.isna().any()].tolist()
         print(nullColumnlist)
+        print('計算ＮＵＬＬ筆：')
+        print(pd.DataFrame({'COUNT' :df.isnull().sum(),'Missing Ratio' : (df.isnull().sum()*100/df.shape[0])}))
+
+        Data.log.debug('\n'+pd.DataFrame({'COUNT' :df.isnull().sum(),'Missing Ratio' : (df.isnull().sum()*100/df.shape[0])}).to_string())
+        Data.log.debug('\n'+df.describe().to_string())
         print('===================================================')
         return df, strColumnlist, numbericColumnlist, nullColumnlist
     @staticmethod
@@ -104,21 +110,23 @@ class Data:
             df=df.drop(columns=excludeColumns)
         return df
     @staticmethod
-    def scalerData(df,numbericColumnlist, config, isTrain=True):
+    def scalerData(df,scalerKind,numbericColumnlist, config, isTrain=True):
         if len(numbericColumnlist) > 0:
             target_cols=config.targetCol
             scalerColumnlist = [ele for ele in numbericColumnlist if ele not in target_cols]
             if isTrain:
                 scaler=None
-                if(config.scalerKind.value=='standard'):
+                if(scalerKind=='standard'):
                     scaler = StandardScaler()
-                elif(config.scalerKind.value=='minmax'):
+                elif(scalerKind=='minmax'):
                     scaler = MinMaxScaler()
-                elif(config.scalerKind.value=='robust'):
+                elif(scalerKind=='MinMaxScaler'):
+                    scaler = MinMaxScaler()
+                elif(scalerKind=='robust'):
                     scaler = RobustScaler()
-                elif(config.scalerKind.value=='maxabs'):
+                elif(scalerKind=='maxabs'):
                     scaler = MaxAbsScaler()
-                elif(config.scalerKind.value=='normal'):
+                elif(scalerKind=='normal'):
                     scaler = Normalizer()
                 else:
                     scaler = MinMaxScaler()
@@ -133,7 +141,8 @@ class Data:
     def featureTransform(df,config, isTrain=True):
         if len(config.encoderColumns) > 0:
             target_cols=config.targetCol
-            df =pd.get_dummies(df.drop(target_cols, axis=1),columns=config.encoderColumns, prefix_sep='_')
+
+            df =pd.get_dummies(df.drop([target_cols,config.xAxisCol], axis=1),columns=config.encoderColumns, prefix_sep='_')
             if isTrain:
                 df.head(0).to_csv('model/eh_{}.csv'.format(config.modelFileKey),index=0) #不保存行索引
             else:

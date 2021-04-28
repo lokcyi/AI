@@ -2,8 +2,8 @@ from os import replace,path
 import pandas as pd
 import numpy as np
 from BaseClass.MLBase import MLBase ,fillNaType,scalerKind
-
-class MLSample(MLBase):
+from Util.EDA import EDA
+class MLSample(MLBase,EDA):
     def __init__(self):
         super(MLSample, self).__init__()
         self.log.debug('{}-------------'.format(path.basename(__file__)))
@@ -56,6 +56,7 @@ class MLSample(MLBase):
 
         #資料型態轉型
         self.dfInputData['MFG_DATE'] = self.dfInputData['MFG_DATE'].astype(str)
+
     def __outlier(self):
         mean = self.dfInputData[self.config.targetCol].mean()
         sd =self.dfInputData[self.config.targetCol].std()
@@ -185,6 +186,8 @@ if __name__ == "__main__":
             sample.config.reportName = "In line Cycle Time({} {})".format(t,p)
             sample.config.modelFileKey="INLINE_CT_{}_{}".format(t,p)
             sample.config.InputDataCondition[0]['value'] = p
-            sample.run()
+            # sample.run()
+            sample.EDAAnalysis()
+            sample.EDACompare()
     print("***************程式結束***************")
 

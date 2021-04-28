@@ -11,6 +11,7 @@ import logging
 from enum import Enum
 
 from Util.ModelAnalysis import ModelAnalysis
+from Util.EDA import EDA
 from Util.Data import Data
 from Util.Logger import Logger
 from ModelClass import *
@@ -135,7 +136,7 @@ class MLBase(metaclass=abc.ABCMeta):
             f.write(html)
         webbrowser.open(url)
 
-    def run(self):
+    def __getDATA(self):
         '''
         讀取DB 到local
         '''
@@ -190,6 +191,19 @@ class MLBase(metaclass=abc.ABCMeta):
         self.log.debug("===Data Filter===================%s" % self.__class__.__name__)
         self.filterColumns() # 拆分訓練集 測是集
 
+    def EDAAnalysis(self):
+        self.__getDATA()
+        # EDA.analysis(df, targetfeat)
+        EDA.analysis(self.dfInputData, self.config.targetCol)
+
+
+    def EDACompare(self):
+        self.__getDATA()
+        # EDA.analysis(df, targetfeat)
+        EDA.compare(self.dfTraining, self.dfTesting, self.config.targetCol)
+
+    def run(self):
+        self.__getDATA()
         '''
         資料預處理
         '''

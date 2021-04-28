@@ -7,6 +7,7 @@ class MLSample(MLBase):
     def __init__(self):
         super(MLSample, self).__init__()
         self.log.debug('{}-------------'.format(path.basename(__file__)))
+        self.config.reportName = "In line Cycle Time"
         self.config.dataSource =  {'DB': 'MPS',
                            'TABLE': 'PPM.dbo.VW_PROD_KPI',
                            'CONDITION': [
@@ -21,8 +22,8 @@ class MLSample(MLBase):
         self.config.xAxisCol = "MFG_DATE"
         self.config.includeColumns = []
         # self.config.excludeColumns = ['STOCK_EVENT_TIME','AVG', 'PM', 'TS', 'ENG', 'NST', 'TOOL_ID', 'KEY', 'BACKUP_BY_RATE', 'BACKUP_FOR_RATE', 'RWORK_LOT_RATE', 'SAMPLING_RATE', 'SHIFT1', 'SHIFT2', 'SHIFT3', 'ENG']  #,'CHANGE_RECIPE'
-        self.config.excludeColumns = ['TC']
-        self.config.encoderColumns =['PART_NO','EQP_NO'] #vanessa
+        self.config.excludeColumns = ['TC','INLINE_CT_BY_WAFER']
+        self.config.encoderColumns =['TOOLG_ID','PROD_ID'] #vanessa
         self.config.fillNaType = fillNaType.MEAN
         self.config.scalerKind =scalerKind.MINMAX
         self.config.modelFileKey="INLINE_CT_L80AR03A"
@@ -159,22 +160,31 @@ class MLSample(MLBase):
 
 
 if __name__ == "__main__":
-   sample=MLSample()
+    sample=MLSample()
 
 
-   prodIdList=['L80AR03A']
-     # 訓練集篩選條件
-#    sample.config.TrainCondition = [
-#             {'column':"MFG_MONTH",'operator':">=",'value': '202001'},
-#             {'column':"MFG_MONTH",'operator':"<=",'value':'202012'},
-#         ]
-#         # 測試集篩選條件
-#    sample.config.TestCondition = [
-#             {'column':"MFG_MONTH",'operator':">",'value':'202012'},
-#         ]
-   for p in prodIdList:
-        sample.config.modelFileKey="INLINE_CT_{}".format(p)
-        sample.config.InputDataCondition[0]['value'] = p
-        sample.run()
-   print("***************程式結束***************")
+
+    toolgList = ['WM_PosCln','WM_PreCln','WM_SW','DI_HDP','DI_HDP_FSG','DI_HDP_HV80','DI_PSG','DI_TD']
+    #  self.config.dataSource =  {'DB': 'MPS',
+    #                            'TABLE': 'PPM.dbo.VW_PROD_KPI',
+    #                            'CONDITION': [
+    #                                   {'column':"MFG_DATE",'operator':">=", 'value': '20200101'},
+    #                                  #  {'column':"MFG_DATE",'operator':"<=", 'value': '202012'},
+    #                                   {'column': 'TOOLG_ID', 'operator': "=", 'value': 'PK_DUVKrF'},
+    #                            ],
+    #         },
+    prodlist=['D38CL01A','C11MD01A','F40AL01A','I14PD14A','L80GA03A','L08AR01A']
+    for t in toolgList:
+
+        sample.config.dataSource[0]['CONDITION'] = [
+            {'column': 'MFG_DATE', 'operator': '>=', 'value': '20200101'},
+            {'column': 'TOOLG_ID', 'operator': '=', 'value':  t}]
+
+        for p in prodlist:
+            print('condition' ,t,p )
+            sample.config.reportName = "In line Cycle Time({} {})".format(t,p)
+            sample.config.modelFileKey="INLINE_CT_{}_{}".format(t,p)
+            sample.config.InputDataCondition[0]['value'] = p
+            sample.run()
+    print("***************程式結束***************")
 

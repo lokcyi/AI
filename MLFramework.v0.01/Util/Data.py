@@ -51,7 +51,7 @@ class Data:
         return df_merge
     @staticmethod
     def analyzeData(df):
-        df.isnull().sum()
+
         print('非數值欄位：')
         strColumnlist=df.select_dtypes(exclude=['int64','float64']).columns.tolist()
         print(strColumnlist)
@@ -191,7 +191,7 @@ class Data:
         df2.to_csv('./Report/'+config.modelFileKey+'_'+mlKind+'.csv',index=False)
         print(mlKind+'  '+config.modelFileKey+" Test acc%:",mlKind,Data.accsum(df2,config.targetCol))
         _acc = mlKind,Data.accsum(df2,config.targetCol)
-        Data.log.debug(mlKind+'  '+config.modelFileKey+" Test acc: :%.2f" % _acc[1])
+        Data.log.debug(mlKind+'  '+config.modelFileKey+" Test acc: %.2f" % _acc[1])
 
         _accsum=0
         def_result_summary = df2.groupby(config.xAxisCol, as_index=False).sum().reset_index()[[config.xAxisCol,config.targetCol,'Predict']]
@@ -204,7 +204,7 @@ class Data:
         if(def_result_summary[config.targetCol]!=0):
             totol_acc = (1- abs(def_result_summary['Predict'] -def_result_summary[config.targetCol])/def_result_summary[config.targetCol])*100
             print(mlKind+" Test Aggreation acc :%f ",totol_acc)
-            Data.log.debug(mlKind+'  '+config.modelFileKey +" Test Aggreation acc :%f " % totol_acc)
+            Data.log.debug(mlKind+'  '+config.modelFileKey +" Test Aggreation acc :%.2f " % totol_acc)
             dfraw=pd.read_csv(config.datafile)
 
 

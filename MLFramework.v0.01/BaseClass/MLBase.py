@@ -122,6 +122,7 @@ class MLBase(metaclass=abc.ABCMeta):
             if mClass !='LSTMModel':
                 htmlRender['sstable{0}'.format(i+1)]=(ModelAnalysis.sensitivityAnalysis(self.model[mClass],self.mlKind[mClass],self.dfInputData,self.config).style.render())
         htmlRender['ploimage']='{0}_plot.svg'.format(self.config.modelFileKey)
+        htmlRender['reportname']= self.config.reportName
         # Template handling
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=''))
         template = env.get_template('template.html')
@@ -213,8 +214,9 @@ class MLBase(metaclass=abc.ABCMeta):
         # self.featureTransform()
         # self.dfInputDataRaw=  self.dfTraining.copy(deep=False)
         self.dfTraining_eh = Data.featureTransform(self.dfTraining, self.config,True)  # exclude target_cols xAxisCol
+        self.dfTraining_eh.to_csv("./log/"+self.config.modelFileKey+'_Training.csv')
         self.dfTesting_eh = Data.featureTransform(self.dfTesting,self.config,False)  # exclude target_cols xAxisCol
-
+        self.dfTesting_eh.to_csv("./log/"+self.config.modelFileKey+'_Testing.csv')
         # self.dfTraining = self.getTrainingData()
         # if hasattr(self.config, 'TrainCondition') and hasattr(self.config, 'TestCondition'):
         #     cols = [ sub['column'] for sub in self.config.TrainCondition+self.config.TestCondition ]
@@ -241,6 +243,8 @@ class MLBase(metaclass=abc.ABCMeta):
         print(bcolors.OKBLUE + "===訓練模型====================" + bcolors.ENDC)
         self.log.debug("===Model Training===================%s" % self.__class__.__name__)
         self.config._featureList=list(self.dfTraining_eh.columns)
+        print(bcolors.WARNING + "_featureList : "+ ''.join(self.config._featureList) + bcolors.ENDC)
+        self.log.debug("_featureList : {} \n".format( ' , '.join(self.config._featureList)))
         #self.config._featureList=list(self.dfTraining.drop(self.config.targetCol, axis=1).columns)
         self.model={}
         self.mlKind={}
@@ -279,6 +283,7 @@ class MLBase(metaclass=abc.ABCMeta):
 class MLConfig:
     def __init__(self):
         self._datafile = ""
+        self._reportName = "My Report"
 
     @property
     def datafile(self):
@@ -287,5 +292,10 @@ class MLConfig:
     def datafile(self, value):
         self._datafile = value
 
-
+    @property
+    def reportName (self):
+        return self._reportName
+    @reportName.setter
+    def reportName(self, value):
+        self._reportName = value
 

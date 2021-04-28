@@ -47,18 +47,18 @@ class MLSample(MLBase):
         # self.config.runModel=['CAT']
         #self.scaler
         #self.scalerColumnList=[]
-        self.dataPreHandler()
-    ##資料合併##
-    def dataPreHandler(self):
-        df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
-        # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
-        df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
-        # df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
-        df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_202002.csv")
-        #df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
-        df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
-        df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
-        df_merge.to_csv(self.config.datafile, index=False)
+    #     self.dataPreHandler()
+    # ##資料合併##
+    # def dataPreHandler(self):
+    #     df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
+    #     # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
+    #     df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
+    #     # df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
+    #     df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_202002.csv")
+    #     #df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
+    #     df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
+    #     df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
+    #     df_merge.to_csv(self.config.datafile, index=False)
 
 
     ##資料轉換##

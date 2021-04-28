@@ -186,8 +186,8 @@ if __name__ == "__main__":
             sample.config.reportName = "In line Cycle Time({} {})".format(t,p)
             sample.config.modelFileKey="INLINE_CT_{}_{}".format(t,p)
             sample.config.InputDataCondition[0]['value'] = p
-            # sample.run()
-            sample.EDAAnalysis()
-            sample.EDACompare()
+            sample.run()
+            # sample.EDAAnalysis()
+            # sample.EDACompare()
     print("***************程式結束***************")
 

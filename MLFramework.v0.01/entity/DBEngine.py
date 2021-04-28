@@ -3,8 +3,10 @@ import pandas as pd
 import sys
 import os
 import Util.ConfigManager as cf
+from cryptography.fernet import Fernet
+#conda install -c anaconda cryptography
 class DBEngine:
-    def __init__(self,db_name,config_path='.\config'):
+    def __init__(self,db_name,config_path='./config'):
         self.dbName = db_name
         self.config_path = config_path
         self.dbName = db_name
@@ -13,6 +15,7 @@ class DBEngine:
         self.UserIDPrifix = 'uid'
         self.PwdPrifix = 'pwd'
         self.config_dic = {}
+        self.config_k=b'XNg5-5Dph7HeGhYRj58XwEcEKaCda3i96rU1rqxZh0Y='
     def Query(self,sqlstring,params=None):
         conn = self.conn()
         cursor = conn.cursor(as_dict = True)
@@ -35,7 +38,8 @@ class DBEngine:
 
     def conn(self):
         self.parsingConfig()
-        conn = pymssql.connect(host=self.config_dic[self.ServerPrifix],user = self.config_dic[self.UserIDPrifix],password = self.config_dic[self.PwdPrifix],database=self.config_dic[self.DBNamePrifix])
+        fernet = Fernet(self.config_k)
+        conn = pymssql.connect(host=self.config_dic[self.ServerPrifix],user = self.config_dic[self.UserIDPrifix],password = fernet.decrypt(self.config_dic[self.PwdPrifix]).decode(),database=self.config_dic[self.DBNamePrifix])
         return conn
 
 

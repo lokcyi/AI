@@ -19,7 +19,7 @@ class configManager:
 
     common_config_dict = {}
     db_config_dict = {}
-    config_path = '.\config'
+    config_path = './config'
 
     def __init__(self,config_path):
         self.config_path = config_path
@@ -38,7 +38,7 @@ class configManager:
         return config_value
 
     def read_file(self,file_name):
-        file_path = self.config_path + "\\" + file_name
+        file_path = '{}/{}'.format(self.config_path,file_name) #self.config_path + "\\" + file_name
         f = open(file_path,encoding='utf8')
         lines = f.readlines()
         data_str = "".join(lines)

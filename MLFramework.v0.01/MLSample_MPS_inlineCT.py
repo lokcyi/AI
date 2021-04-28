@@ -53,4 +53,5 @@ class MLSample(MLBase):
         return self.dfInputData[(self.dfInputData['MFG_DATE'] >  pd.to_datetime(self.config.final_date))]
 if __name__ == "__main__":
     sample=MLSample()
+    sample.config.reportName = "In line Cycle Time"
     sample.run()

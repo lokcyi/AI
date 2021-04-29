@@ -13,7 +13,7 @@ class MLSample(MLBase,EDA):
                            'CONDITION': [
                                   {'column':"MFG_DATE",'operator':">=", 'value': '20200101'},
                                  #  {'column':"MFG_DATE",'operator':"<=", 'value': '202012'},
-                                  {'column': 'TOOLG_ID', 'operator': "=", 'value': 'PK_DUVKrF'},
+                                #  {'column': 'TOOLG_ID', 'operator': "=", 'value': 'PK_DUVKrF'},
                            ],
         },
 
@@ -31,6 +31,7 @@ class MLSample(MLBase,EDA):
         # 初始值篩選條件
         self.config.InputDataCondition= [
             {'column': 'PROD_ID', 'operator': "=", 'value': 'L80AR03A'},
+            {'column': 'TOOLG_ID', 'operator': "=", 'value': 'PK_DUVKrF'},
         ]
         # 訓練集篩選條件
         self.config.TrainCondition = [
@@ -183,9 +184,10 @@ if __name__ == "__main__":
 
         for p in prodlist:
             print('condition' ,t,p )
-            sample.config.reportName = "In line Cycle Time({} {})".format(t,p)
+            sample.config.reportName = "Inline Cycle Time ({} - {})".format(t,p)
             sample.config.modelFileKey="INLINE_CT_{}_{}".format(t,p)
             sample.config.InputDataCondition[0]['value'] = p
+            sample.config.InputDataCondition[1]['value'] = t
             sample.run()
             # sample.EDAAnalysis()
             # sample.EDACompare()

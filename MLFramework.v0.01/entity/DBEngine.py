@@ -39,7 +39,7 @@ class DBEngine:
     def conn(self):
         self.parsingConfig()
         fernet = Fernet(self.config_k)
-        conn = pymssql.connect(host=self.config_dic[self.ServerPrifix],user = self.config_dic[self.UserIDPrifix],password = fernet.decrypt(self.config_dic[self.PwdPrifix]).decode(),database=self.config_dic[self.DBNamePrifix])
+        conn = pymssql.connect(host=self.config_dic[self.ServerPrifix],user = self.config_dic[self.UserIDPrifix],password = str(fernet.decrypt( bytes(self.config_dic[self.PwdPrifix]+'==', 'ascii')) , encoding='UTF-8'),database=self.config_dic[self.DBNamePrifix])
         return conn
 
 

@@ -32,7 +32,8 @@ class CAT(MLModelBase):
             'fold_len_multiplier':2,
             'border_count':128,
         }
-        model_cb = CatBoostRegressor(**other_params)
+        # model_cb = CatBoostRegressor(**other_params)
+        model_cb = CatBoostRegressor()
         # model_cb = CatBoostRegressor()
         # optimized_CATM = GridSearchCV(estimator=model_cb, param_grid=cv_params, scoring='r2', cv=5, verbose=1, n_jobs=4)
         # optimized_CATM.fit(X_train,y_train)#,cat_features =category_features)

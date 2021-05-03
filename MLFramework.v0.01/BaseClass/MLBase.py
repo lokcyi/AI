@@ -2,6 +2,7 @@
 import abc
 import pandas as pd
 import numpy as np
+from datetime import datetime
 from itertools import groupby
 import matplotlib.pyplot as plt
 import jinja2
@@ -123,6 +124,11 @@ class MLBase(metaclass=abc.ABCMeta):
             if mClass !='LSTMModel':
                 htmlRender['sstable{0}'.format(i+1)]=(ModelAnalysis.sensitivityAnalysis(self.model[mClass],self.mlKind[mClass],self.dfInputData,self.config).style.render())
         htmlRender['ploimage']='{0}_plot.svg'.format(self.config.modelFileKey)
+
+
+
+
+        htmlRender['nowDT']=  datetime.now().strftime("%Y/%m/%d %H:%M:%S")
         htmlRender['reportname']= self.config.reportName
         # Template handling
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=''))
@@ -141,7 +147,7 @@ class MLBase(metaclass=abc.ABCMeta):
         讀取DB 到local
         '''
         print(bcolors.HEADER + "===" + MLBase.ver + "===================================" + bcolors.ENDC)
-        print(bcolors.WARNING + "===[input]資料合併===================" + bcolors.ENDC)
+        print(bcolors.WARNING + "===[input]讀取DB==================" + bcolors.ENDC)
         self.log.debug("===Data Merge===================%s" % self.__class__.__name__)
         if hasattr(self.config, 'dataSource'):
             self.getDataFromDB()

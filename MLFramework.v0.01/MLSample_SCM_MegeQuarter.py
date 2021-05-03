@@ -9,18 +9,18 @@ class MLSample(MLBase):
    def __init__(self):
         super(MLSample, self).__init__()
         self.log.debug('-------------{}-------------'.format(path.basename(__file__)))
-        # self.config.dataFiles = {
-        #     'files':["./data/Parts_EQP_Output_ByMonth_20210407_van.csv"
-        #              ,"./data/ScmTrainingData_Monthly_30_20152021.csv"
-        #              # ,"./data/ScmTrainingData_Monthly_30days.csv"
-        #             ,"./data/holiday.csv"
-        #             ],
-        #     'relations':[
-        #             [['MFG_MONTH','EQP_NO'],['MFG_MONTH','TOOL_ID']]
-        #             ,[['MFG_MONTH'],['MFG_MONTH']]
-        #             ]
-        # }
-        self.config.datafile = "./data/Parts_Tools_30Quater2020.csv"
+      #   self.config.dataFiles = {
+      #       'files':["./data/Parts_EQP_Output_ByMonth_20210407_van.csv"
+      #                ,"./data/ScmTrainingData_Monthly_30_20152021.csv"
+      #                # ,"./data/ScmTrainingData_Monthly_30days.csv"
+      #               ,"./data/holiday.csv"
+      #               ],
+      #       'relations':[
+      #               [['MFG_MONTH','EQP_NO'],['MFG_MONTH','TOOL_ID']]
+      #               ,[['MFG_MONTH'],['MFG_MONTH']]
+      #               ]
+      #   }
+        self.config.datafile = "./data/Parts_Tools_30Quater.csv"
         self.config.targetCol = "QTY"
         self.config.xAxisCol = "MFG_MONTH"
         self.config.includeColumns = []
@@ -46,20 +46,20 @@ class MLSample(MLBase):
         self.config.runModel=['CAT','XG','LRModel','NN','RFModel']# ['DNN','DNN1k','LRModel','NN','RFModel','XG']
         #self.scaler
         #self.scalerColumnList=[]
-   #      self.dataPreHandler()
+        self.dataPreHandler()
    # ##資料合併##
 
-   # def dataPreHandler(self):
-   #    #   pass
-   #      df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
-   #      df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
-   #      df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
-   #      df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
-   #      df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_202002.csv")
-   #      df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
-   #      df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
-   #      df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
-   #      df_merge.to_csv(self.config.datafile, index=False)
+   def dataPreHandler(self):
+      #   pass
+        df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
+        df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
+        df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
+        df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
+        df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_202002.csv")
+        df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
+        df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
+        df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
+        df_merge.to_csv(self.config.datafile, index=False)
 
 
     ##資料轉換##
@@ -145,8 +145,9 @@ class MLSample(MLBase):
 if __name__ == "__main__":
    sample=MLSample()
 
-   partList =['85-ECT0010','85-EKA0190','85-EKA0270' ,'85-EMA0900','85-EMA0910','85-EMA0920', '86-DIA0120','87-WPT1070','85-EMA0130']
-   # partList =['86-DIA0120']
+   # partList =['85-ECT0010','85-EKA0190','85-EKA0270' ,'85-EMA0900','85-EMA0910','85-EMA0920', '86-DIA0120','87-WPT1070','85-EMA0130']
+   partList =['86-DIA0120']
+   sample.config.runModel=['LRModel']
    for p in partList:
         sample.config.modelFileKey="Parts_Tools_30_Quater2020_{}".format(p)
         sample.config.InputDataCondition[0]['value'] = p

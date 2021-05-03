@@ -31,25 +31,14 @@ class MLSample(MLBase):
 
         # self.config.runModel=['DNN','DNN1k','LRModel','NN','RFModel','XG']
         self.config.runModel=['LRModel','NN','CAT','XG']
-        # self.config.runModel=['XG']
         self.config.partno='85-EKA0190'
 
-# 85-EMA0920 OK
-# 85-EMA0130 OK
-
-# 85-ECT0010  一值都超高
-# 85-EMA0910  只有用兩筆 很難預估
-# 85-EMA0900  只有用一筆 很難預估
-# 86-DIA0120 Good
-# 87-WPT1070 Good
-# 85-EKA0270 Good
-# 85-EKA0190 Good
-        # self.config.runModel=['CAT']
         #self.scaler
         #self.scalerColumnList=[]
-    #     self.dataPreHandler()
+        self.dataPreHandler()
     # ##資料合併##
-    # def dataPreHandler(self):
+    def dataPreHandler(self):
+        pass
     #     df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
     #     # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
     #     df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)

@@ -34,32 +34,22 @@ class MLSample(MLBase):
         # self.config.runModel=['XG']
         self.config.partno='85-EKA0190'
 
-# 85-EMA0920 OK
-# 85-EMA0130 OK
-
-# 85-ECT0010  一值都超高
-# 85-EMA0910  只有用兩筆 很難預估
-# 85-EMA0900  只有用一筆 很難預估
-# 86-DIA0120 Good
-# 87-WPT1070 Good
-# 85-EKA0270 Good
-# 85-EKA0190 Good
         # self.config.runModel=['CAT']
         #self.scaler
         #self.scalerColumnList=[]
         self.dataPreHandler()
     ##資料合併##
     def dataPreHandler(self):
-        # pass
-        df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
-        # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
-        df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
-        # df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
-        df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_20152021.csv")
-        #df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
-        df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
-        df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
-        df_merge.to_csv(self.config.datafile, index=False)
+        pass
+        # df_parts=pd.read_csv("./data/Parts_EQP_Output_ByMonth_20210407_van.csv")
+        # # df_parts['MFG_MONTH'] = pd.to_datetime(df_parts['STOCK_EVENT_TIME'].values, format='%Y-%m-%d').astype('period[Q]')
+        # df_parts.drop(columns=['STOCK_EVENT_TIME'],inplace=True)
+        # # df_parts = df_parts.groupby(['PART_NO','EQP_NO','MFG_MONTH']).sum().reset_index()
+        # df_EQP=pd.read_csv("./data/ScmTrainingData_Monthly_30_20152021.csv")
+        # #df_EQP['MFG_MONTH'] = pd.to_datetime(df_EQP['MFG_MONTH'].values, format='%Y%m').astype('period[Q]')
+        # df_EQP = df_EQP.groupby(['TOOL_ID','MFG_MONTH']).mean().reset_index()
+        # df_merge = pd.merge(df_parts, df_EQP, left_on=['EQP_NO','MFG_MONTH'], right_on=['TOOL_ID','MFG_MONTH'],how="inner")
+        # df_merge.to_csv(self.config.datafile, index=False)
 
 
     ##資料轉換##

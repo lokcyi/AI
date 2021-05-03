@@ -19,11 +19,25 @@
         table th, table td {
             padding: 10px 10px;
         }
+        .header{
+            width: 100%;
+        }
+        .headerleft{
+            display: inline-block;
+        }
+        .headerright{
+            float: right;
+            display: inline-block;
+            padding: 1em;
+        }
     </style>
 </head>
 <body>
-<h1>{{ reportname }}</h1>
-{% for element in elements %}{{loop.index}}  {{ element }} {% endfor %}
+<div class='header'>
+    <h1 class="headerleft">{{ reportname }}</h1>
+    {% for element in elements %}{{loop.index}}  {{ element }} {% endfor %}
+    <div class="headerright">{{ nowDT }}</div>
+</div>
 <table>
 <tr>
 <td>
@@ -81,4 +95,5 @@
 <img src={{ ploimage }} width="100%">
 
 </body>
+
 </html>

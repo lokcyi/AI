@@ -30,7 +30,7 @@ class MLModelBase(metaclass=abc.ABCMeta):
                 model = self.training(X, y)
                 predicted = model.predict(X)
                 r2 = metrics.r2_score(y, predicted)
-                self.log.debug('印出模型績效..R2:{0}'.format(r2))
+                self.log.debug('模型績效..R2:{0}'.format(r2))
 
 
                 if hasattr(model,'save'):

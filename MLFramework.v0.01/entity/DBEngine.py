@@ -2,12 +2,15 @@ import pymssql as pymssql
 import pandas as pd
 import sys
 import os
-import Util.ConfigManager as cf
 from cryptography.fernet import Fernet
+parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
+sys.path.append(parentDir)
+import Util.ConfigManager as cf
+
 #conda install -c anaconda cryptography
 class DBEngine:
-    def __init__(self,db_name,config_path='./config'):
-        self.dbName = db_name
+    def __init__(self,db_name='',config_path='./config'):
+        
         self.config_path = config_path
         self.dbName = db_name
         self.ServerPrifix = 'Server'
@@ -42,5 +45,16 @@ class DBEngine:
         conn = pymssql.connect(host=self.config_dic[self.ServerPrifix],user = self.config_dic[self.UserIDPrifix],password = str(fernet.decrypt( bytes(self.config_dic[self.PwdPrifix]+'==', 'ascii')) , encoding='UTF-8'),database=self.config_dic[self.DBNamePrifix])
         return conn
 
+    def encrpyt(self,data):
+        fernet = Fernet(self.config_k)
+        # then use the Fernet class instance
+        # to encrypt the string string must must
+        # be encoded to byte string before encryption
+        encData = fernet.encrypt(data.encode())
 
+        print("encrypt string: ", encData.decode("utf-8") [:-2])
 
+if __name__ == "__main__": 
+    utl = DBEngine()
+    token =utl.encrpyt('test')
+    print(token)

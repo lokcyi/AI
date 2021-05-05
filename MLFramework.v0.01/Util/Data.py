@@ -73,7 +73,7 @@ class Data:
         for c in condition :
             if c['operator'] == "=":
                df =df[df[c['column']] == c['value']]
-            elif c['operator']  == "=!":
+            elif c['operator']  == "=!" or c['operator']  == "!=":
                df =df[df[c['column']] != c['value']]
             elif c['operator']  == "<=":
                df =df[df[c['column']] <= c['value']]
@@ -114,6 +114,7 @@ class Data:
         if len(numbericColumnlist) > 0:
             target_cols=config.targetCol
             scalerColumnlist = [ele for ele in numbericColumnlist if ele not in target_cols]
+            scalerColumnlist = list(set(scalerColumnlist).intersection(df.columns))
             if isTrain:
                 scaler=None
                 if(scalerKind=='standard'):
@@ -183,6 +184,7 @@ class Data:
         plt.xlabel(config.xAxisCol)
         plt.xticks(rotation=90)
         plt.ylabel(config.targetCol)
+        df2 = df2.sort_values(config.xAxisCol, ascending=True)
         t = df2[config.xAxisCol].to_numpy()+'_'+np.arange(len(XTest)).astype(str)  # 创建t变量
         plt.plot(t,df2['Predict'], label = mlKind, color='red', marker='.',linewidth = '0.5')
         plt.plot(t,df2[config.targetCol], label = "ACT", color='blue', marker='x',linewidth = '0')
@@ -198,7 +200,7 @@ class Data:
         def_result_summary = df2.groupby(config.xAxisCol, as_index=False).sum().reset_index()[[config.xAxisCol,config.targetCol,'Predict']]
         if(def_result_summary.shape[0]>1):
             _acc = mlKind,Data.accsum(def_result_summary,config.targetCol)
-            Data.log.debug(mlKind+'  '+config.modelFileKey +" Test group by x-axis acc: : %.2f" % _acc[1])
+            Data.log.debug(mlKind+'  '+config.modelFileKey +" Test group by x-axis acc: %.2f" % _acc[1])
             print(mlKind+" Test group by x-axis acc:  %.2f" % _acc[1])
 
         def_result_summary = df2[[config.targetCol,'Predict']].sum()

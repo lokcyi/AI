@@ -68,9 +68,13 @@ class MLBase(metaclass=abc.ABCMeta):
             if len(dataSource['CONDITION']) > 1:
                 for i in range(len(dataSource['CONDITION'])):
                     if i==0:
-                        query.append('where {} {}  \'{}\' '.format(dataSource['CONDITION'][i]['column'] ,dataSource['CONDITION'][i]['operator'] ,dataSource['CONDITION'][i]['value']))
+                        query.append('where ')
                     else:
-                        query.append(' AND {} {} \'{}\' '.format(dataSource['CONDITION'][i]['column'] , dataSource['CONDITION'][i]['operator'] , dataSource['CONDITION'][i]['value']))
+                        query.append(' AND ')
+                    if dataSource['CONDITION'][i]['operator']=='in':
+                        query.append('  {} {}  (\'{}\')' .format(dataSource['CONDITION'][i]['column'] ,dataSource['CONDITION'][i]['operator'] ,'\',\''.join(dataSource['CONDITION'][i]['value'].split(','))))
+                    else:
+                        query.append('  {} {}  \'{}\' '.format(dataSource['CONDITION'][i]['column'] , dataSource['CONDITION'][i]['operator'] , dataSource['CONDITION'][i]['value']))
         conn = db_engine.DBEngine(db_name)
         self.dfInputData = conn.Query(' '.join(query))
 
@@ -124,8 +128,6 @@ class MLBase(metaclass=abc.ABCMeta):
             if mClass !='LSTMModel':
                 htmlRender['sstable{0}'.format(i+1)]=(ModelAnalysis.sensitivityAnalysis(self.model[mClass],self.mlKind[mClass],self.dfInputData,self.config).style.render())
         htmlRender['ploimage']='{0}_plot.svg'.format(self.config.modelFileKey)
-
-
 
 
         htmlRender['nowDT']=  datetime.now().strftime("%Y/%m/%d %H:%M:%S")
@@ -207,9 +209,31 @@ class MLBase(metaclass=abc.ABCMeta):
         self.__getDATA()
         # EDA.analysis(df, targetfeat)
         EDA.compare(self.dfTraining, self.dfTesting, self.config.targetCol)
+    '''
+    chekck 訓練集 測試集 有資料(如果筆數為0 則停止跑模型)
+    '''
+    def checkDFSetHasData(self):
+        print(bcolors.WARNING +  "資料筆數 : ({},{})".format(self.dfInputData.shape[0],self.dfInputData.shape[1])+ bcolors.ENDC)
+        print(bcolors.WARNING + "Training Set  資料筆數 : ({},{})".format(self.dfTraining.shape[0],self.dfTraining.shape[1])+ bcolors.ENDC)
+        print(bcolors.WARNING + "Testing Set   資料筆數 : ({},{})".format(self.dfTesting.shape[0],self.dfTesting.shape[1]) +  bcolors.ENDC)
+        if self.dfInputData.shape[0] == 0 :
+            self.log.debug("Input Set 資料筆數 : 0 ")
+            return False
+        if self.dfTraining.shape[0] == 0 :
+
+            self.log.debug("Training Set 資料筆數 : 0  ")
+            return False
+        if self.dfTesting.shape[0] == 0 :
+
+            self.log.debug("Testing Set 資料筆數 : 0 ")
+            return False
+        return True
+
 
     def run(self):
         self.__getDATA()
+
+
         '''
         資料預處理
         '''
@@ -220,6 +244,9 @@ class MLBase(metaclass=abc.ABCMeta):
         self.dfTraining = Data.fillnull(self.dfTraining, self.nullColumnlist, self.config.fillNaType.value)
         self.dfTesting = Data.fillnull(self.dfTesting, self.nullColumnlist, self.config.fillNaType.value)
         self.dfOriTesting = self.dfTesting.copy(deep=False)
+
+        if not self.checkDFSetHasData():
+            return
 
         print(bcolors.WARNING + "===特徵縮放===================" + bcolors.ENDC)
         self.log.debug("===特徵縮放===================%s" % self.__class__.__name__)

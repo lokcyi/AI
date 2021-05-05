@@ -114,9 +114,9 @@ if __name__ == "__main__":
     # toolgList = ['PK_DUVKrF','EC_SAC','DA_AM','DI_HDP_HV80','DT_O3','FK_LAHO','WH_EKC']
     # toolgList = ['EC_SAC']#,'EC_SAC','DA_AM','DI_HDP_HV80','DT_O3','FK_LAHO','WH_EKC']
     #toolgList = ['DA_AM','DA_BM','DB_Pre','DGA_AM_350','DI_HDP','DI_HDP_FSG','DI_HDP_HV80','DR_LampA','DS_FDY','DS_HDP','DS_Logic','DT_O3','EB_Asher','EC_SAC',
-    # toolgList = ['EC_Via_40','EG_LAM_G1','EM_AL_AG','EM_AL_Cln','EU_U_Cu','FC_PadOxi','FK_LAHO','FM_SiN(A)','FP_NDPoly','IA_MidCur','MA_Al','PK_DUVKrF','SC_M.Jet','WA_PreCln','WH_EKC','WK_Cu','WM_PosCln','WN_Co-RMV']
+    # toolgList = ['EC_Via_40','EG_LAM_G1','EM_AL_AG','EM_AL_Cln','EU_U_Cu','FC_PadOxi','FK_LAHO','FM_SiN(A)','FP_NDPoly','IA_MidCur','MA_Al','PK_DUVKrF','SC_M.Jet','WA_PreCln','WH_EKC','WK_Cu','WM_PosCln','WN_Co-RMV','DT_BP_G/F','MT_Ti/TiN','WH_C/F']
     # toolgList = ['DT_BP_G/F','MT_Ti/TiN','WH_C/F']
-    toolgList = ['WH_C/F']
+    toolgList = ['WH_C/F','MT_Ti/TiN']
     # sample.config.runModel=['LRModel']
     for t in toolgList:
 

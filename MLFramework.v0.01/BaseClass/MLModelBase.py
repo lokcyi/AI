@@ -62,6 +62,20 @@ class MLModelBase(metaclass=abc.ABCMeta):
             #[print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances]
             df_feature_importances=DataFrame(feature_importances)
             df_feature_importances.columns = ['Variable','重要性_'+modelname]
+        elif hasattr(model,'coef_'):
+             # Get numerical feature importances
+            importances = list(model.coef_)
+            # List of tuples with variable and importance
+            feature_importances = [(feature, abs(round(importance, 3))) for feature, importance in zip(feature_list, importances)]
+            # Sort the feature importances by most important first
+            feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+            # Print out the feature and importances
+            #[print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances]
+            df_feature_importances=DataFrame(feature_importances)
+            df_feature_importances.columns = ['Variable','重要性_'+modelname]
+
+            df_feature_importances['重要性_'+modelname]= (df_feature_importances['重要性_'+modelname]* df_feature_importances['重要性_'+modelname].std())
+            df_feature_importances['重要性_'+modelname]= df_feature_importances['重要性_'+modelname]/df_feature_importances['重要性_'+modelname].sum()
         else:
             df_feature_importances=DataFrame()
 

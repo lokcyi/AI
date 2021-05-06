@@ -7,7 +7,7 @@ class MLSample(MLBase,EDA):
     def __init__(self):
         super(MLSample, self).__init__()
         self.log.debug('{}-------------'.format(path.basename(__file__)))
-        self.config.reportName = "In line Cycle Time"
+        self.config.reportName = "In line Cycle Time "
         self.config.dataSource =  {'DB': 'MPS',
                            'TABLE': 'PPM.dbo.VW_PROD_KPI',
                            'CONDITION': [

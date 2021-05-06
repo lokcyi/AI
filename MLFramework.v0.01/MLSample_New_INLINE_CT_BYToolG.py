@@ -7,30 +7,29 @@ class MLSample(MLBase,EDA):
     def __init__(self):
         super(MLSample, self).__init__()
         self.log.debug('{}-------------'.format(path.basename(__file__)))
-        self.config.reportName = "In line Cycle Time By OPCode"
+        self.config.reportName = "In line Cycle Time By ToolG"
         self.config.dataSource =  {'DB': 'MPS',
-                           'TABLE': 'PPM.dbo.VW_PROD_OP_KPI',
+                           'TABLE': 'PPM.dbo.VW_TOOLG_KPI',
                            'CONDITION': [
                                 {'column':"MFG_DATE",'operator':">=", 'value': '202001022'},
-                                {'column':"ACC_INLINE_CT_WAFER",'operator':">", 'value': '0'},#避免抓到NA
+                                {'column':"INLINE_CT_BY_WAFER",'operator':">", 'value': '0'},#避免抓到NA
                                 #  {'column':"MFG_DATE",'operator':"<=", 'value': '202012'},
                                 # {'column': 'TOOLG_ID', 'operator': "in", 'value': 'WM_PosCln,WM_PreCln,WM_SW,DI_HDP,DI_HDP_FSG,DI_HDP_HV80,DI_PSG,DI_TD'},
                            ],
         },
 
-        self.config.datafile = "./data/MPS/VW_PROD_OP_KPI.csv"
-        self.config.targetCol = "ACC_INLINE_CT_WAFER"
+        self.config.datafile = "./data/MPS/VW_TOOLG_KPI_CT.csv"
+        self.config.targetCol = "INLINE_CT_BY_WAFER"
         self.config.xAxisCol = "MFG_DATE"
         self.config.includeColumns = []
-        self.config.excludeColumns = ['TC','C_TC','INLINE_CT_BY_WAFER', 'INLINE_CT','WIP_QTY','NO_HOLD_WIP','HOLD_RATE','CHANGE_RECIPE']
-        self.config.encoderColumns =['TOOLG_ID','PROD_ID','OPE_NO'] #vanessa
+        self.config.excludeColumns = ['TC','INLINE_CT']
+        self.config.encoderColumns =['TOOLG_ID'] #vanessa
         self.config.fillNaType = fillNaType.DROPNA
-        self.config.scalerKind =scalerKind.STANDARD#scalerKind.MINMAX
+        self.config.scalerKind =scalerKind.MINMAX#scalerKind.MINMAX STANDARD
         self.config.modelFileKey="INLINE_CT_L80AR03A"
         self.config.forceRetrain = True
         # 初始值篩選條件
         self.config.InputDataCondition= [
-            {'column': 'PROD_ID', 'operator': "=", 'value': 'L80AR03A'},
             {'column': 'TOOLG_ID', 'operator': "=", 'value': 'PK_DUVKrF'},
         ]
         # 訓練集篩選條件
@@ -51,8 +50,8 @@ class MLSample(MLBase,EDA):
         #異常值清除
         # self.dfInputData['INLINE_CT'] =self.dfInputData['INLINE_CT'].replace(['0', 0], np.nan)
         self.dfInputData['UP_TIME'] =self.dfInputData['UP_TIME'].replace(['0', 0], np.nan)
-
         self.dfInputData['HOLD_RATE_01'] =  self.dfInputData['HOLD_RATE_01'].replace(np.nan, 0)
+        # self.dfInputData['HOLD_RATE_01'] =  self.dfInputData['HOLD_RATE_01'].replace(np.nan, 0)
         # self.dfInputData['HOLD_RATE_HOURLY'] =  self.dfInputData['HOLD_RATE_HOURLY'].replace(np.nan, 0)
         # self.dfInputData['HOLD_RATE'] =  self.dfInputData['HOLD_RATE'].replace(np.nan, 0)
 
@@ -68,16 +67,15 @@ class MLSample(MLBase,EDA):
         # self.__outlier("INLINE_CT")
         # self.__iqrfilter("INLINE_CT",[0,.75])
         # if len(self.dfInputData['UP_TIME'].unique()):
-        # self.__iqrfilter('UP_TIME',[0,.75])
+        self.__iqrfilter('UP_TIME',[0,.75])
 
-
-    def __outlier(self,targetCol,scale=2):
+    def __outlier(self,targetCol):
         mean = self.dfInputData[targetCol].mean()
         sd =self.dfInputData[targetCol].std()
-        lower =  mean - scale*sd
+        lower =  mean - 2*sd
         if(lower <0):
             lower=0
-        upper = mean + scale*sd
+        upper = mean + 2*sd
         print( lower,upper)
 
         self.dfInputData = self.dfInputData[self.dfInputData[targetCol] > lower ]   #[x for x in arr if (x > mean - 2 * sd)]
@@ -93,20 +91,6 @@ class MLSample(MLBase,EDA):
         else:
             self.dfInputData =  self.dfInputData[~s.clip(*[Q1 - 1.5*IQR,Q3+ 1.5 * IQR]).isin([Q1 - 1.5*IQR,Q3+ 1.5 * IQR])]
 
-    # ##填補遺漏值##
-    # def fillnull(self):
-    #     if(self.config.fillNaType.value=='mean'):
-    #         self.dfInputData[self.nullColumnlist] = self.dfInputData[self.nullColumnlist].fillna(self.dfInputData.median()).fillna(value=0)
-    #     elif(self.fillNaType.value=='mode'):
-    #         self.dfInputData = self.dfInputData.fillna(self.dfInputData.mode())
-    #     elif(self.fillNaType.value=='bfill'):
-    #         self.dfInputData = self.dfInputData.fillna(method='bfill').fillna(self.dfInputData.median())
-    #     elif(self.fillNaType.value=='ffill'):
-    #         self.dfInputData = self.dfInputData.fillna(method='ffill').fillna(self.dfInputData.median())
-    #     elif(self.fillNaType.value=='dropna'):
-    #         self.dfInputData = self.dfInputData.dropna()
-    #     elif(self.fillNaType.value=='zero'):
-    #         self.dfInputData[self.nullColumnlist]=self.dfInputData[self.nullColumnlist].fillna(0)
 
    #  ##特徵轉換##
     def featureTransform(self):
@@ -146,13 +130,14 @@ if __name__ == "__main__":
     #toolgList = ['EC_Via_40','EG_LAM_G1','EM_AL_AG','EM_AL_Cln','EU_U_Cu','FC_PadOxi','FK_LAHO','FM_SiN(A)','FP_NDPoly','IA_MidCur','MA_Al','PK_DUVKrF','SC_M.Jet','WA_PreCln','WH_EKC','WK_Cu','WM_PosCln','WN_Co-RMV','DT_BP_G/F','MT_Ti/TiN','WH_C/F']
 
     #L15TH02A ==> 'DA_AM','DB_Pre','DC_WCVD','DGA_AM_350','DI_HDP','DK_300','DP_SiN','DR_LampA','DS_HDP','DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur','MA_Al','MA_Al_175','MT_Ti/TiN','MT_TiN','PK_DUVKrF','QW_SEM-PH','SC_M.Jet','WA_PreCln','WB_LiEtch','WDS_160_G2','WH_DSP','WH_EKC','WM_PosCln','WM_PreCln','WN_ContactCln','WN_Co-RMV','WW_NH4OH','XE_Sorter'
-    toolgList =[ 'DA_AM','DB_Pre','DC_WCVD','DGA_AM_350','DI_HDP','DK_300','DP_SiN','DR_LampA','DS_HDP','DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur','MA_Al','MA_Al_175','MT_Ti/TiN','MT_TiN','PK_DUVKrF','QW_SEM-PH','SC_M.Jet','WA_PreCln','WB_LiEtch','WDS_160_G2','WH_DSP','WH_EKC','WM_PosCln','WM_PreCln','WN_ContactCln','WN_Co-RMV','WW_NH4OH','XE_Sorter']
+    # toolgList =[ 'DA_AM','DB_Pre','DC_WCVD','DGA_AM_350','DI_HDP','DK_300','DP_SiN','DR_LampA','DS_HDP','DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur','MA_Al','MA_Al_175','MT_Ti/TiN','MT_TiN','PK_DUVKrF','QW_SEM-PH','SC_M.Jet','WA_PreCln','WB_LiEtch','WDS_160_G2','WH_DSP','WH_EKC','WM_PosCln','WM_PreCln','WN_ContactCln','WN_Co-RMV','WW_NH4OH','XE_Sorter']
     #toolgList =[ 'DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur',
-    # toolgList =[ 'DA_AM','DB_Pre','DC_WCVD','DGA_AM_350','DI_HDP','DK_300','DP_SiN','DR_LampA','DS_HDP','DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur']
+    # toolgList =[ 'MA_Al','MA_Al_175','MT_Ti/TiN','MT_TiN','PK_DUVKrF','QW_SEM-PH','SC_M.Jet','WA_PreCln','WB_LiEtch','WDS_160_G2','WH_DSP','WH_EKC','WM_PosCln','WM_PreCln','WN_ContactCln','WN_Co-RMV','WW_NH4OH','XE_Sorter']
     # prodlist=['L55GA02A','L15TH02A','D38CL01A']# ,
     # prodlist =['4GDDR3_25D','25D_M81','C11EU16A_WI','C11EU17A_WI','C11EU33A','C11EU39A','C11MD01A','D07AL08A','D07AS04A','D07AS05A','D38AL03A','D38AL05A','D38AS01A','D38AS05A','D38BE23A','D38BR01A','D38CL01A','D38CL02A','D38CL03C','D38CL04A','D38CL05A','D38CL05C','D38CL06A','D38ND01A','D38PA01A','D45AL01A','D45AL03A','D45AL05A','D45AL06A','D45CL01B','D63AL02A','D63BE01A','D63BE03A','D63CL02A','D63CL04A','D63CL05A','D63CL06A','D63PA03A','D63TL02A','F40AL01A','F40MN01A','I14PD02A','I14PD03A','I14PD12A','I14PD14A','I14PD15A','L08AR01A','L09DY46A','L11AR04A','L11GA11A','L11GE16A','L18RU28A','L18RU79A','L18RU80A','L18RU91A','L55GA02A','L80AR03A','L80GA03A','L80GA04A']
-    #toolgList=['FL_LT']
-    prodlist =['L15TH02A']
+    # toolgList=['EC_Via_20']
+    toolgList =['EC_Via_20', 'DA_AM','DB_Pre','DC_WCVD','DGA_AM_350','DI_HDP','DK_300','DP_SiN','DR_LampA','DS_HDP','DT_BP_G/F','DT_O3','EA_AsherM','EB_Asher','EC_LDD_Logic','EC_LDD_NXP','EC_Via_20','EC_Via_40','EG_LAM_G1','EH_PI','EK_aC','EL_Light','EM_AL_AG','EM_AL_Cln','EM_AL_Depo','EM_W/O','FC_PadOxi','FH_HT','FL_LT','FN_H(F)','FN_SiN(A)','FP_NDPoly','FT_148','IA_MidCur','MA_Al','MA_Al_175','MT_Ti/TiN','MT_TiN','PK_DUVKrF','QW_SEM-PH','SC_M.Jet','WA_PreCln','WB_LiEtch','WDS_160_G2','WH_DSP','WH_EKC','WM_PosCln','WM_PreCln','WN_ContactCln','WN_Co-RMV','WW_NH4OH','XE_Sorter']
+    # prodlist =['L15TH02A']
     for t in toolgList:
 
         # sample.config.dataSource[0]['CONDITION'] = [
@@ -164,20 +149,19 @@ if __name__ == "__main__":
             #  {'column':"MFG_DATE",'operator':"<=", 'value': '202012'},
             # {'column': 'TOOLG_ID', 'operator': "in", 'value': 'WM_PosCln,WM_PreCln,WM_SW,DI_HDP,DI_HDP_FSG,DI_HDP_HV80,DI_PSG,DI_TD'},
         # ]
-        for p in prodlist:
-            print('condition' ,t,p )
-            sample.config.dataSource[0]['CONDITION'] = [
-                {'column':"MFG_DATE",'operator':">=", 'value': '202001022'},
-                {'column':"INLINE_CT",'operator':">", 'value': '0'},#避免抓到NA
-                {'column': 'TOOLG_ID', 'operator': '=', 'value':  t},
-                {'column': 'PROD_ID', 'operator': '=', 'value':  p},
-            ]
-            sample.config.reportName = "Inline Cycle Time BY OP ({} - {})".format(t,p)
-            sample.config.modelFileKey="INLINE_CT_BYOP_{}_{}".format(t.replace('/','_'),p.replace('/','_'))
-            sample.config.InputDataCondition[0]['value'] = p
-            sample.config.InputDataCondition[1]['value'] = t
-            sample.run()
-            # sample.EDAAnalysis()
-            # sample.EDACompare()
+
+        print('condition' ,t )
+        sample.config.dataSource[0]['CONDITION'] = [
+            {'column':"MFG_DATE",'operator':">=", 'value': '202001022'},
+            {'column':"INLINE_CT_BY_WAFER",'operator':">", 'value': '0'},#避免抓到NA
+            {'column': 'TOOLG_ID', 'operator': '=', 'value':  t},
+
+        ]
+        sample.config.reportName = "Inline Cycle Time BY ToolG({})".format(t)
+        sample.config.modelFileKey="INLINE_CT_BY_TOOLG_{}".format(t.replace('/','_'))
+        sample.config.InputDataCondition[0]['value'] = t
+        sample.run()
+        # sample.EDAAnalysis()
+        # sample.EDACompare()
     print("***************程式結束***************")
 

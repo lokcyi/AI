@@ -36,7 +36,25 @@ class configManager:
         final_key = self.db_prifix +'.' + key + '.' +self.server_type
         config_value = self.db_config_dict[final_key]
         return config_value
+    #private, 判斷在LOCAL, SIT, UAT, PROD
+    def __get_server_type(self):
+        serverHostName = socket.gethostname()
+        serverFullHostName = socket.getfqdn(serverHostName)
+        serverHostIP = socket.gethostbyname(socket.gethostname())
+        self.host_name = serverFullHostName
 
+        server_key = ['common.LocalServer','common.SystemIntegrationTestingServer','common.UserAccessTestingServer','common.ProductionServer']
+        mapping_server_type = ['Local','SystemIntegrationTesting','UserAccessTesting','Production']
+        for idx,key in enumerate(server_key):
+            productServerName = self.__common_config_dict[key]
+            find_index = productServerName.find(serverHostName)
+            if find_index==-1:
+                find_index = productServerName.find(serverFullHostName)
+            if find_index==-1:
+                find_index = productServerName.find(serverHostIP)
+            if find_index != -1:
+                self.server_type = mapping_server_type[idx]
+                break
     def read_file(self,file_name):
         file_path = '{}/{}'.format(self.config_path,file_name) #self.config_path + "\\" + file_name
         f = open(file_path,encoding='utf8')

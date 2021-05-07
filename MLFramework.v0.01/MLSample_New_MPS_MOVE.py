@@ -6,6 +6,7 @@ from Util.EDA import EDA
 class MLSample(MLBase,EDA):
     def __init__(self):
         super(MLSample, self).__init__()
+        self.log.debug('----------------------------------------------------')
         self.log.debug('{}-------------'.format(path.basename(__file__)))
         self.config.reportName = "TOOLG MOVE"
         self.config.dataSource =  {'DB': 'MPS',
@@ -18,7 +19,7 @@ class MLSample(MLBase,EDA):
         },
 
         self.config.datafile = "./data/MPS/VW_TOOLG_KPI.csv"
-        self.config.targetCol = "MOVE_QTY"
+        self.config.targetCol = " "
         self.config.xAxisCol = "MFG_DATE"
         self.config.includeColumns = []
         # self.config.excludeColumns = ['PROCESS_TIME' ,'WIP_QTY','UP_TIME','TC','INLINE_CT_BY_WAFER','MOVE_QTY_INTERNAL','INLINE_CT','NO_HOLD_WIP', 'BACKUP_BY_RATE','BACKUP_FOR_RATE','REWORK_LOT_RATE','QLIMIT_RATE','SAMPLING_RATE','BATCH_SIZE']
@@ -45,7 +46,7 @@ class MLSample(MLBase,EDA):
             {'column':"MFG_DATE",'operator':">",'value':'20210411'},
         ]
 
-        self.config.runModel=['LRModel','NN','XG','CAT','DNN','DNN1k','RFModel']# ['DNN','DNN1k','LRModel','NN','RFModel','XG']
+        self.config.runModel=['LRModel','NN','XG','RFModel']# ['DNN','DNN1k','LRModel','NN','RFModel','XG']
 
     ##資料轉換##
     def dataTransform(self):
@@ -118,10 +119,10 @@ if __name__ == "__main__":
     # toolgList = ['DT_BP_G/F','MT_Ti/TiN','WH_C/F']
 
 
-    if hasattr(sample.config, 'dataSource'):
-        delattr(sample.config, 'dataSource')
-    sample.config.runModel=['LRModel']
-    toolgList = ['WH_C/F','MT_Ti/TiN']
+    # if hasattr(sample.config, 'dataSource'):
+    #     delattr(sample.config, 'dataSource')
+
+    toolgList = ['PK_DUVKrF','FK_LAHO']
     # sample.config.runModel=['LRModel']
     for t in toolgList:
 

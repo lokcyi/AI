@@ -17,6 +17,7 @@ from Util.Data import Data
 from Util.Logger import Logger
 from ModelClass import *
 import entity.DBEngine as db_engine
+from Util.Featurizer import Featurizer
 
 class fillNaType(Enum):
     MEAN = 'mean'
@@ -201,14 +202,18 @@ class MLBase(metaclass=abc.ABCMeta):
 
     def EDAAnalysis(self):
         self.__getDATA()
-        # EDA.analysis(df, targetfeat)
-        EDA.analysis(self.dfInputData, self.config.targetCol)
+        EDA.analysis(self.dfInputData, self.config.targetCol,self.config)
 
 
     def EDACompare(self):
         self.__getDATA()
-        # EDA.analysis(df, targetfeat)
-        EDA.compare(self.dfTraining, self.dfTesting, self.config.targetCol)
+        EDA.compare(self.dfTraining, self.dfTesting, self.config.targetCol,self.config)
+
+    def FeatureSelect(self):
+        self.__getDATA()
+        Featurizer.Select(self.dfInputData, self.config.targetCol, self.config)
+
+
     '''
     chekck 訓練集 測試集 有資料(如果筆數為0 則停止跑模型)
     '''

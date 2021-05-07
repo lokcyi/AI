@@ -1,6 +1,7 @@
 # from setuptools import setup
 # from Cython.Build import cythonize #conda install -c anaconda cython
 # # python setup.py build_ext --inplace
+##python setup.py build_ext --inplace --build-lib ./lib
 
 # setup(
 #     name='test',
@@ -36,9 +37,9 @@ def py2c(file):
 	)
 
 if __name__ == '__main__':
-
-    file = "./entity/DBEngine.py"
-    py2c(file)
+    # file = "./entity/DBEngine.py"
+	file = "./Util/Encrypt.py"
+	py2c(file)
 
 # from setuptools import setup, find_packages
 

@@ -1,6 +1,7 @@
 #import
 try:
     import xml.etree.ElementTree as ET
+    import socket
 except:
     print("model import error!")
 class configManager:
@@ -24,6 +25,7 @@ class configManager:
     def __init__(self,config_path):
         self.config_path = config_path
         self.load_file()
+        self.__get_server_type()
 
     def GetKey(self,key):
         #先用
@@ -46,7 +48,7 @@ class configManager:
         server_key = ['common.LocalServer','common.SystemIntegrationTestingServer','common.UserAccessTestingServer','common.ProductionServer']
         mapping_server_type = ['Local','SystemIntegrationTesting','UserAccessTesting','Production']
         for idx,key in enumerate(server_key):
-            productServerName = self.__common_config_dict[key]
+            productServerName = self.common_config_dict[key]
             find_index = productServerName.find(serverHostName)
             if find_index==-1:
                 find_index = productServerName.find(serverFullHostName)

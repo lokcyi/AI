@@ -10,7 +10,7 @@ import Util.ConfigManager as cf
 #conda install -c anaconda cryptography
 class DBEngine:
     def __init__(self,db_name='',config_path='./config'):
-        
+
         self.config_path = config_path
         self.dbName = db_name
         self.ServerPrifix = 'Server'
@@ -19,6 +19,7 @@ class DBEngine:
         self.PwdPrifix = 'pwd'
         self.config_dic = {}
         self.config_k=b'XNg5-5Dph7HeGhYRj58XwEcEKaCda3i96rU1rqxZh0Y='
+        # self.cfo=None
     def Query(self,sqlstring,params=None):
         conn = self.conn()
         cursor = conn.cursor(as_dict = True)
@@ -54,7 +55,7 @@ class DBEngine:
 
         print("encrypt string: ", encData.decode("utf-8") [:-2])
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     utl = DBEngine()
     token =utl.encrpyt('test')
     print(token)

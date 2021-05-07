@@ -14,7 +14,7 @@ class XG(MLModelBase):
             'min_child_weight': 1, 'seed': 0,
             'subsample': 0.8, 'colsample_bytree': 0.8, 'gamma': 0, 'reg_alpha': 0, 'reg_lambda': 1}
         model = xgb.XGBRegressor(**other_params)
-        # optimized_GBM = GridSearchCV(estimator=model, param_grid=cv_params, scoring='r2'
+       # optim ized_GBM = GridSearchCV(estimator=model, param_grid=cv_params, scoring='r2'
         #     , cv=5, verbose=1, n_jobs=4)
         # optimized_GBM.fit(X_train, y_train)
         # test_score = optimized_GBM.score(X_test,y_test)
